@@ -200,6 +200,7 @@ fetch("https://worldtimeapi.org/api/timezone/Asia/Tehran")
     updateFields(baseDate);
   })
   .catch(() => {
+    alert("⚠️ زمان از سرور جهانی دریافت نشد. زمان سیستم استفاده می‌شود.");
     baseDate = new Date();
     updateFields(baseDate);
   });
