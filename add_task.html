@@ -32,31 +32,15 @@
             border-radius: 10px;
             font-weight: bold;
         }
-        .duration-inputs {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
+        .calendar-inputs {
             margin-bottom: 25px;
-        }
-        .duration-group {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .duration-group label {
-            margin-bottom: 5px;
-        }
-        .duration-group input {
-            width: 60px;
-            text-align: center;
-            padding: 6px;
             font-size: 16px;
         }
-        .separator {
-            font-size: 24px;
-            padding: 0 2px;
-            margin-top: 25px;
+        .calendar-inputs input,
+        .calendar-inputs select {
+            padding: 5px;
+            margin: 0 5px;
+            font-size: 16px;
         }
         .result-time {
             margin-top: 25px;
@@ -80,34 +64,32 @@
 <div class="container">
     <h2>ScheduleSV</h2>
     <div class="time-display" id="live-time">در حال بارگذاری...</div>
-    <label>📝 شروع فعالیت بعد از:</label>
-    <div class="duration-inputs">
-        <div class="duration-group">
-            <label>دقیقه</label>
-            <input type="number" id="minutes" value="0" min="0">
-        </div>
-        <div class="separator">:</div>
-        <div class="duration-group">
-            <label>ساعت</label>
-            <input type="number" id="hours" value="0" min="0">
-        </div>
-        <div class="separator">:</div>
-        <div class="duration-group">
-            <label>روز</label>
-            <input type="number" id="days" value="0" min="0">
-        </div>
+    <label>📝 شروع فعالیت در:</label>
+    <div class="calendar-inputs">
+        <select id="weekday">
+            <option>شنبه</option>
+            <option>یکشنبه</option>
+            <option>دوشنبه</option>
+            <option>سه‌شنبه</option>
+            <option>چهارشنبه</option>
+            <option>پنج‌شنبه</option>
+            <option>جمعه</option>
+        </select>
+        <input type="number" id="day" placeholder="روز" min="1" max="31">
+        <input type="number" id="month" placeholder="ماه" min="1" max="12">
+        <input type="number" id="year" placeholder="سال" min="1400" max="1500">
+        <input type="number" id="hour" placeholder="ساعت" min="0" max="23">
+        <input type="number" id="minute" placeholder="دقیقه" min="0" max="59">
     </div>
     <div class="result-time">
-        <div>⏱ زمان اجرا: <span id="final-time">--</span></div>
+        <div>⏱ زمان انتخاب‌شده: <span id="final-time">--</span></div>
         <div>⏳ زمان باقی‌مانده: <span id="time-left">--</span></div>
     </div>
-    <button class="submit-btn" onclick="calculateStartTime()">ثبت فعالیت</button>
+    <button class="submit-btn" onclick="calculateManualStartTime()">ثبت فعالیت</button>
 </div>
 <script>
     let currentTime = null;
     let timerInterval;
-    let lastTarget = null;
-    let startTime = null;
 
     async function fetchTime() {
         try {
@@ -125,9 +107,6 @@
             setInterval(() => {
                 currentTime.setSeconds(currentTime.getSeconds() + 1);
                 updateLiveTime();
-                updateDynamicFinalTime();
-                if (lastTarget) updateTimeLeft(lastTarget);
-                else updateDynamicTimeLeft();
             }, 1000);
         } catch (e) {
             document.getElementById('live-time').innerText = 'خطا در دریافت زمان از سرور';
@@ -138,37 +117,19 @@
         document.getElementById('live-time').innerText = currentTime.toLocaleString('fa-IR');
     }
 
-    function updateDynamicFinalTime() {
-        if (!lastTarget) {
-            const delay = getInputDelay();
-            startTime = new Date(currentTime.getTime() + delay);
-            document.getElementById('final-time').innerText = startTime.toLocaleString('fa-IR');
-        }
-    }
+    function calculateManualStartTime() {
+        const y = parseInt(document.getElementById('year').value);
+        const m = parseInt(document.getElementById('month').value) - 1;
+        const d = parseInt(document.getElementById('day').value);
+        const h = parseInt(document.getElementById('hour').value);
+        const min = parseInt(document.getElementById('minute').value);
 
-    function updateDynamicTimeLeft() {
-        const delay = getInputDelay();
-        const fakeTarget = new Date(currentTime.getTime() + delay);
-        updateTimeLeft(fakeTarget);
-    }
-
-    function calculateStartTime() {
-        const delay = getInputDelay();
-        const target = new Date(currentTime.getTime() + delay);
-        lastTarget = target;
-
+        const target = new Date(y, m, d, h, min);
         document.getElementById('final-time').innerText = target.toLocaleString('fa-IR');
         updateTimeLeft(target);
 
         if (timerInterval) clearInterval(timerInterval);
         timerInterval = setInterval(() => updateTimeLeft(target), 1000);
-    }
-
-    function getInputDelay() {
-        const days = parseInt(document.getElementById('days').value) || 0;
-        const hours = parseInt(document.getElementById('hours').value) || 0;
-        const minutes = parseInt(document.getElementById('minutes').value) || 0;
-        return (days * 24 * 60 + hours * 60 + minutes) * 60 * 1000;
     }
 
     function updateTimeLeft(target) {
@@ -189,13 +150,6 @@
 
         document.getElementById('time-left').innerText = `${d}روز ${h}ساعت ${m}دقیقه ${s}ثانیه`;
     }
-
-    ['days', 'hours', 'minutes'].forEach(id => {
-        document.getElementById(id).addEventListener('input', () => {
-            lastTarget = null;
-            updateDynamicTimeLeft();
-        });
-    });
 
     fetchTime();
 </script>
