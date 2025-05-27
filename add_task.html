@@ -19,7 +19,7 @@
             border-radius: 15px;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
             text-align: center;
-            width: 700px;
+            width: 750px;
         }
         h2 {
             color: #007bff;
@@ -35,7 +35,8 @@
         .time-row {
             display: flex;
             justify-content: center;
-            gap: 10px;
+            align-items: center;
+            gap: 5px;
             margin-bottom: 20px;
         }
         .time-controls {
@@ -43,12 +44,6 @@
             flex-direction: column;
             align-items: center;
             position: relative;
-        }
-        .time-controls span.separator {
-            font-size: 18px;
-            margin: 0 5px;
-            align-self: center;
-            padding-top: 30px;
         }
         .time-input {
             width: 60px;
@@ -66,6 +61,7 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            margin: 2px 0;
         }
         .time-controls button:disabled {
             opacity: 0.4;
@@ -79,6 +75,10 @@
             font-size: 16px;
             border-radius: 5px;
             cursor: pointer;
+        }
+        .separator {
+            font-size: 20px;
+            margin: 0 5px;
         }
     </style>
 </head>
@@ -156,7 +156,7 @@
                     if (currentTime.hour >= 24) {
                         currentTime.hour = 0;
                         currentTime.day++;
-                        // Note: Extend with month/year change as needed
+                        // Extend month/year logic as needed
                     }
                 }
             }
@@ -201,7 +201,7 @@
             const tempInc = { ...selectedTime, [field]: selectedTime[field] + 1 };
 
             minusBtn.disabled = isBeforeCurrent(tempDec);
-            plusBtn.disabled = false; // always allow increase
+            plusBtn.disabled = false;
         });
     }
 
