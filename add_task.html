@@ -2,54 +2,108 @@
 <html lang="fa" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>افزودن فعالیت</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <style>
     body {
       font-family: sans-serif;
-      margin: 20px;
-      background-color: #f7f7f7;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+      direction: rtl;
     }
+
     h1 {
-      font-family: 'Vazirmatn', sans-serif;
+      text-align: center;
       font-size: 24px;
       color: #2b7bb9;
-      margin-bottom: 0;
+      margin-bottom: 4px;
     }
+
     p {
-      font-size: 14px;
-      color: #666;
-      margin-top: 5px;
-      margin-bottom: 20px;
+      text-align: center;
+      color: #777;
+      margin-bottom: 24px;
     }
+
     label {
       font-weight: bold;
-      margin-top: 10px;
       display: block;
+      margin: 12px 0 4px;
     }
-    input, select {
+
+    select, input, textarea {
       width: 100%;
       padding: 10px;
-      margin-top: 5px;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
       border-radius: 8px;
       border: 1px solid #ccc;
+      font-size: 14px;
     }
-    button {
-      background-color: #2b7bb9;
-      color: white;
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      width: 100%;
-      font-size: 16px;
+
+    input[readonly] {
+      background-color: #eee;
     }
-    .inline-inputs {
+
+    .calendar-mode-toggle {
+      text-align: left;
+      font-size: 13px;
+      margin-top: -5px;
+      margin-bottom: 10px;
+      color: #2b7bb9;
+      cursor: pointer;
+    }
+
+    .time-grid {
       display: flex;
       gap: 10px;
     }
-    .inline-inputs input {
+
+    .time-unit {
+      position: relative;
       flex: 1;
+    }
+
+    .time-unit input {
+      text-align: center;
+    }
+
+    .time-unit .btn {
+      display: none;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #2b7bb9;
+      color: white;
+      border: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      font-size: 14px;
+      line-height: 18px;
+      cursor: pointer;
+    }
+
+    .time-unit:hover .btn-up {
+      display: block;
+      top: -22px;
+    }
+
+    .time-unit:hover .btn-down {
+      display: block;
+      bottom: -22px;
+    }
+
+    button#submit {
+      width: 100%;
+      padding: 12px;
+      background: #2b7bb9;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -58,71 +112,133 @@
   <h1>ScheduleSV</h1>
   <p>مدیریت و پیگیری فعالیت‌های تیمی به ساده‌ترین شکل</p>
 
-  <!-- عنوان فعالیت -->
-  <label for="title">عنوان فعالیت:</label>
-  <select id="preset_titles" onchange="fillTitle(this.value)">
-    <option value="">-- انتخاب کنید یا بنویسید --</option>
+  <label>عنوان فعالیت:</label>
+  <select id="titleSelector" onchange="toggleTitleInput(this)">
+    <option value="custom">بنویسید</option>
     <option value="تماس با مشتری">تماس با مشتری</option>
     <option value="جلسه داخلی">جلسه داخلی</option>
     <option value="ارسال گزارش">ارسال گزارش</option>
   </select>
-  <input type="text" id="title" placeholder="مثلاً: تماس با مشتری">
+  <input type="text" id="titleInput" placeholder="عنوان دلخواه">
 
-  <!-- زمان شروع -->
-  <label for="start">زمان شروع:</label>
-  <input type="datetime-local" id="start">
+  <label>توضیحات:</label>
+  <textarea id="description" placeholder="یادداشت یا نکته اضافی..."></textarea>
 
-  <!-- ددلاین با + و - -->
-  <label for="deadline">ددلاین:</label>
-  <div class="inline-inputs">
-    <input type="date" id="deadline">
-    <div>
-      <button type="button" onclick="adjustDeadline(1)">+</button><br><br>
-      <button type="button" onclick="adjustDeadline(-1)">-</button>
+  <label>زمان شروع:</label>
+  <div class="calendar-mode-toggle" onclick="toggleCalendarMode()">📅 سوییچ تقویم میلادی / شمسی</div>
+  <div class="time-grid" id="startTimeGrid">
+    <div class="time-unit">
+      <button class="btn btn-up" onclick="adjustTime('start', 'year', 1)">+</button>
+      <input id="start_year" value="2025" readonly>
+      <button class="btn btn-down" onclick="adjustTime('start', 'year', -1)">-</button>
+    </div>
+    <div class="time-unit">
+      <button class="btn btn-up" onclick="adjustTime('start', 'month', 1)">+</button>
+      <input id="start_month" value="05" readonly>
+      <button class="btn btn-down" onclick="adjustTime('start', 'month', -1)">-</button>
+    </div>
+    <div class="time-unit">
+      <button class="btn btn-up" onclick="adjustTime('start', 'day', 1)">+</button>
+      <input id="start_day" value="26" readonly>
+      <button class="btn btn-down" onclick="adjustTime('start', 'day', -1)" disabled>-</button>
+    </div>
+    <div class="time-unit">
+      <button class="btn btn-up" onclick="adjustTime('start', 'hour', 1)">+</button>
+      <input id="start_hour" value="14" readonly>
+      <button class="btn btn-down" onclick="adjustTime('start', 'hour', -1)">-</button>
+    </div>
+    <div class="time-unit">
+      <button class="btn btn-up" onclick="adjustTime('start', 'minute', 1)">+</button>
+      <input id="start_minute" value="00" readonly>
+      <button class="btn btn-down" onclick="adjustTime('start', 'minute', -1)">-</button>
     </div>
   </div>
 
-  <button onclick="sendData()">ثبت فعالیت</button>
+  <label>ددلاین:</label>
+  <div class="time-grid" id="deadlineGrid">
+    <div class="time-unit">
+      <button class="btn btn-up" onclick="adjustTime('deadline', 'year', 1)">+</button>
+      <input id="deadline_year" value="2025" readonly>
+      <button class="btn btn-down" onclick="adjustTime('deadline', 'year', -1)">-</button>
+    </div>
+    <div class="time-unit">
+      <button class="btn btn-up" onclick="adjustTime('deadline', 'month', 1)">+</button>
+      <input id="deadline_month" value="05" readonly>
+      <button class="btn btn-down" onclick="adjustTime('deadline', 'month', -1)">-</button>
+    </div>
+    <div class="time-unit">
+      <button class="btn btn-up" onclick="adjustTime('deadline', 'day', 1)">+</button>
+      <input id="deadline_day" value="27" readonly>
+      <button class="btn btn-down" onclick="adjustTime('deadline', 'day', -1)">-</button>
+    </div>
+  </div>
+
+  <button id="submit" onclick="submitForm()">ثبت فعالیت</button>
 
   <script>
-    // انتخاب عنوان از منو
-    function fillTitle(val) {
-      document.getElementById("title").value = val;
-    }
+    let calendarMode = "gregorian";
 
-    // تنظیم تاریخ امروز پیش‌فرض
-    window.onload = () => {
-      const now = new Date();
-      const pad = n => n.toString().padStart(2, '0');
-      const local = now.toISOString().slice(0,16);
-      document.getElementById("start").value = local;
-      document.getElementById("deadline").value = now.toISOString().slice(0,10);
-    }
-
-    function adjustDeadline(days) {
-      let deadline = new Date(document.getElementById("deadline").value);
-      deadline.setDate(deadline.getDate() + days);
-      const iso = deadline.toISOString().slice(0,10);
-      document.getElementById("deadline").value = iso;
-    }
-
-    function sendData() {
-      const data = {
-        title: document.getElementById("title").value,
-        start: document.getElementById("start").value,
-        deadline: document.getElementById("deadline").value
-      };
-
-      if (!data.title || !data.start || !data.deadline) {
-        alert("لطفاً همه فیلدها را پر کنید.");
-        return;
+    function toggleTitleInput(select) {
+      const input = document.getElementById("titleInput");
+      if (select.value === "custom") {
+        input.removeAttribute("readonly");
+        input.value = "";
+      } else {
+        input.setAttribute("readonly", true);
+        input.value = select.value;
       }
+    }
+
+    function toggleCalendarMode() {
+      calendarMode = (calendarMode === "gregorian") ? "jalali" : "gregorian";
+      alert("📅 تقویم به " + (calendarMode === "jalali" ? "شمسی" : "میلادی") + " تغییر یافت (فعلاً نمایشی)");
+      // برای نسخه واقعی: کد تبدیل تاریخ اضافه می‌شه
+    }
+
+    function adjustTime(type, field, diff) {
+      const id = `${type}_${field}`;
+      const input = document.getElementById(id);
+      let value = parseInt(input.value);
+
+      if (type === "start" && field === "day" && diff < 0) return; // جلوگیری از برگشت به گذشته
+
+      value += diff;
+
+      if (field === "month") value = ((value - 1 + 12) % 12) + 1;
+      if (field === "hour") value = ((value + 24) % 24);
+      if (field === "minute") value = ((value + 60) % 60);
+      if (field === "day") value = Math.max(1, Math.min(31, value));
+      if (field === "year") value = Math.max(2024, value);
+
+      input.value = value.toString().padStart(2, "0");
+    }
+
+    function submitForm() {
+      const data = {
+        title: document.getElementById("titleInput").value,
+        description: document.getElementById("description").value,
+        start: {
+          y: document.getElementById("start_year").value,
+          m: document.getElementById("start_month").value,
+          d: document.getElementById("start_day").value,
+          h: document.getElementById("start_hour").value,
+          i: document.getElementById("start_minute").value
+        },
+        deadline: {
+          y: document.getElementById("deadline_year").value,
+          m: document.getElementById("deadline_month").value,
+          d: document.getElementById("deadline_day").value
+        },
+        calendar: calendarMode
+      };
 
       Telegram.WebApp.sendData(JSON.stringify(data));
       Telegram.WebApp.close();
     }
 
-    Telegram.WebApp.expand();
+    window.onload = () => {
+      toggleTitleInput(document.getElementById("titleSelector"));
+    }
   </script>
 
 </body>
