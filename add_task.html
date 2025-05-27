@@ -28,15 +28,16 @@
             font-size: 20px;
             background-color: #e9e9e9;
             padding: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
             border-radius: 10px;
             font-weight: bold;
         }
         .duration-inputs {
             display: flex;
             justify-content: center;
-            gap: 15px;
-            margin-bottom: 20px;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 30px;
         }
         .duration-group {
             display: flex;
@@ -52,9 +53,14 @@
             padding: 6px;
             font-size: 16px;
         }
+        .separator {
+            font-size: 24px;
+            padding: 0 5px;
+        }
         .result-time {
             margin-top: 20px;
             font-size: 18px;
+            line-height: 2;
         }
         .submit-btn {
             background-color: #007bff;
@@ -64,6 +70,7 @@
             font-size: 16px;
             border-radius: 5px;
             cursor: pointer;
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -77,10 +84,12 @@
             <label>روز</label>
             <input type="number" id="days" value="0" min="0">
         </div>
+        <div class="separator">:</div>
         <div class="duration-group">
             <label>ساعت</label>
             <input type="number" id="hours" value="0" min="0">
         </div>
+        <div class="separator">:</div>
         <div class="duration-group">
             <label>دقیقه</label>
             <input type="number" id="minutes" value="0" min="0">
@@ -95,6 +104,8 @@
 <script>
     let currentTime = null;
     let timerInterval;
+    let autoUpdateInterval;
+    let lastTarget = null;
 
     async function fetchTime() {
         try {
@@ -112,6 +123,7 @@
             setInterval(() => {
                 currentTime.setSeconds(currentTime.getSeconds() + 1);
                 updateLiveTime();
+                if (lastTarget) updateTimeLeft(lastTarget);
             }, 1000);
         } catch (e) {
             document.getElementById('live-time').innerText = 'خطا در دریافت زمان از سرور';
@@ -129,8 +141,10 @@
 
         const delay = (days * 24 * 60 + hours * 60 + minutes) * 60 * 1000;
         const target = new Date(currentTime.getTime() + delay);
+        lastTarget = target;
 
         document.getElementById('final-time').innerText = target.toLocaleString('fa-IR');
+        updateTimeLeft(target);
 
         if (timerInterval) clearInterval(timerInterval);
         timerInterval = setInterval(() => updateTimeLeft(target), 1000);
