@@ -37,7 +37,7 @@
             justify-content: center;
             align-items: center;
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
         .duration-group {
             display: flex;
@@ -56,6 +56,7 @@
         .separator {
             font-size: 24px;
             padding: 0 5px;
+            margin-top: 25px;
         }
         .result-time {
             margin-top: 25px;
@@ -70,7 +71,7 @@
             font-size: 16px;
             border-radius: 5px;
             cursor: pointer;
-            margin-top: 25px;
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -81,8 +82,8 @@
     <label>📝 شروع فعالیت بعد از:</label>
     <div class="duration-inputs">
         <div class="duration-group">
-            <label>دقیقه</label>
-            <input type="number" id="minutes" value="0" min="0">
+            <label>روز</label>
+            <input type="number" id="days" value="0" min="0">
         </div>
         <div class="separator">:</div>
         <div class="duration-group">
@@ -91,8 +92,8 @@
         </div>
         <div class="separator">:</div>
         <div class="duration-group">
-            <label>روز</label>
-            <input type="number" id="days" value="0" min="0">
+            <label>دقیقه</label>
+            <input type="number" id="minutes" value="0" min="0">
         </div>
     </div>
     <div class="result-time">
@@ -105,6 +106,7 @@
     let currentTime = null;
     let timerInterval;
     let lastTarget = null;
+    let startTime = null;
 
     async function fetchTime() {
         try {
@@ -122,6 +124,7 @@
             setInterval(() => {
                 currentTime.setSeconds(currentTime.getSeconds() + 1);
                 updateLiveTime();
+                updateDynamicFinalTime();
                 if (lastTarget) updateTimeLeft(lastTarget);
             }, 1000);
         } catch (e) {
@@ -131,6 +134,17 @@
 
     function updateLiveTime() {
         document.getElementById('live-time').innerText = currentTime.toLocaleString('fa-IR');
+    }
+
+    function updateDynamicFinalTime() {
+        if (!lastTarget) {
+            const days = parseInt(document.getElementById('days').value) || 0;
+            const hours = parseInt(document.getElementById('hours').value) || 0;
+            const minutes = parseInt(document.getElementById('minutes').value) || 0;
+            const delay = (days * 24 * 60 + hours * 60 + minutes) * 60 * 1000;
+            startTime = new Date(currentTime.getTime() + delay);
+            document.getElementById('final-time').innerText = startTime.toLocaleString('fa-IR');
+        }
     }
 
     function calculateStartTime() {
@@ -168,9 +182,9 @@
         document.getElementById('time-left').innerText = `${d}روز ${h}ساعت ${m}دقیقه ${s}ثانیه`;
     }
 
-    document.getElementById('days').addEventListener('input', () => calculateStartTime());
-    document.getElementById('hours').addEventListener('input', () => calculateStartTime());
-    document.getElementById('minutes').addEventListener('input', () => calculateStartTime());
+    document.getElementById('days').addEventListener('input', () => lastTarget = null);
+    document.getElementById('hours').addEventListener('input', () => lastTarget = null);
+    document.getElementById('minutes').addEventListener('input', () => lastTarget = null);
 
     fetchTime();
 </script>
