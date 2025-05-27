@@ -39,12 +39,22 @@
       font-size: 14px;
     }
     .calendar-mode-toggle {
-      text-align: left;
-      font-size: 13px;
-      margin-top: -5px;
-      margin-bottom: 10px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin: 10px 0 20px;
+    }
+    .calendar-btn {
+      padding: 6px 12px;
+      border: 1px solid #2b7bb9;
+      border-radius: 8px;
+      background: #fff;
       color: #2b7bb9;
       cursor: pointer;
+    }
+    .calendar-btn.active {
+      background: #2b7bb9;
+      color: white;
     }
     .time-grid {
       display: flex;
@@ -110,32 +120,26 @@
   <textarea id="description" placeholder="یادداشت یا نکته اضافی..."></textarea>
 
   <label>زمان شروع:</label>
-  <div class="calendar-mode-toggle" onclick="toggleCalendarMode()">📅 سوییچ تقویم میلادی / شمسی</div>
+  <div class="calendar-mode-toggle">
+    <button class="calendar-btn active" onclick="setCalendarMode('gregorian')">میلادی</button>
+    <button class="calendar-btn" onclick="setCalendarMode('jalali')">شمسی</button>
+  </div>
+
   <div class="time-grid" id="startTimeGrid">
     <div class="time-unit">
       <button class="btn btn-up" onclick="adjustTime('start', 'year', 1)">+</button>
-      <input id="start_year" value="2025" readonly>
+      <input id="start_year" readonly>
       <button class="btn btn-down" onclick="adjustTime('start', 'year', -1)">-</button>
     </div>
     <div class="time-unit">
       <button class="btn btn-up" onclick="adjustTime('start', 'month', 1)">+</button>
-      <input id="start_month" value="05" readonly>
+      <input id="start_month" readonly>
       <button class="btn btn-down" onclick="adjustTime('start', 'month', -1)">-</button>
     </div>
     <div class="time-unit">
       <button class="btn btn-up" onclick="adjustTime('start', 'day', 1)">+</button>
-      <input id="start_day" value="26" readonly>
+      <input id="start_day" readonly>
       <button class="btn btn-down" onclick="adjustTime('start', 'day', -1)" disabled>-</button>
-    </div>
-    <div class="time-unit">
-      <button class="btn btn-up" onclick="adjustTime('start', 'hour', 1)">+</button>
-      <input id="start_hour" value="14" readonly>
-      <button class="btn btn-down" onclick="adjustTime('start', 'hour', -1)">-</button>
-    </div>
-    <div class="time-unit">
-      <button class="btn btn-up" onclick="adjustTime('start', 'minute', 1)">+</button>
-      <input id="start_minute" value="00" readonly>
-      <button class="btn btn-down" onclick="adjustTime('start', 'minute', -1)">-</button>
     </div>
   </div>
 
@@ -143,17 +147,17 @@
   <div class="time-grid" id="deadlineGrid">
     <div class="time-unit">
       <button class="btn btn-up" onclick="adjustTime('deadline', 'year', 1)">+</button>
-      <input id="deadline_year" value="2025" readonly>
+      <input id="deadline_year" readonly>
       <button class="btn btn-down" onclick="adjustTime('deadline', 'year', -1)">-</button>
     </div>
     <div class="time-unit">
       <button class="btn btn-up" onclick="adjustTime('deadline', 'month', 1)">+</button>
-      <input id="deadline_month" value="05" readonly>
+      <input id="deadline_month" readonly>
       <button class="btn btn-down" onclick="adjustTime('deadline', 'month', -1)">-</button>
     </div>
     <div class="time-unit">
       <button class="btn btn-up" onclick="adjustTime('deadline', 'day', 1)">+</button>
-      <input id="deadline_day" value="27" readonly>
+      <input id="deadline_day" readonly>
       <button class="btn btn-down" onclick="adjustTime('deadline', 'day', -1)">-</button>
     </div>
   </div>
@@ -162,32 +166,51 @@
 
   <script>
     let calendarMode = "gregorian";
+
+    function setCalendarMode(mode) {
+      calendarMode = mode;
+      document.querySelectorAll('.calendar-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelector(`.calendar-btn[onclick*="${mode}"]`).classList.add('active');
+      setDefaultDate();
+    }
+
     function toggleTitleInput(select) {
       const input = document.getElementById("titleInput");
-      if (select.value === "custom") {
-        input.style.display = "block";
-        input.value = "";
+      input.style.display = (select.value === "custom") ? "block" : "none";
+    }
+
+    function setDefaultDate() {
+      const now = new Date();
+      let y, m, d;
+
+      if (calendarMode === "jalali") {
+        const j = jalaali.toJalaali(now);
+        y = j.jy; m = j.jm; d = j.jd;
       } else {
-        input.style.display = "none";
+        y = now.getFullYear(); m = now.getMonth() + 1; d = now.getDate();
       }
+
+      document.getElementById("start_year").value = y;
+      document.getElementById("start_month").value = String(m).padStart(2, '0');
+      document.getElementById("start_day").value = String(d).padStart(2, '0');
+      document.getElementById("deadline_year").value = y;
+      document.getElementById("deadline_month").value = String(m).padStart(2, '0');
+      document.getElementById("deadline_day").value = String(d + 1).padStart(2, '0');
     }
-    function toggleCalendarMode() {
-      calendarMode = (calendarMode === "gregorian") ? "jalali" : "gregorian";
-      alert("📅 تقویم به " + (calendarMode === "jalali" ? "شمسی" : "میلادی") + " تغییر یافت (فعلاً نمایشی)");
-    }
+
     function adjustTime(type, field, diff) {
       const id = `${type}_${field}`;
       const input = document.getElementById(id);
       let value = parseInt(input.value);
-      if (type === "start" && field === "day" && diff < 0) return;
       value += diff;
+
       if (field === "month") value = ((value - 1 + 12) % 12) + 1;
-      if (field === "hour") value = ((value + 24) % 24);
-      if (field === "minute") value = ((value + 60) % 60);
       if (field === "day") value = Math.max(1, Math.min(31, value));
       if (field === "year") value = Math.max(2024, value);
+
       input.value = value.toString().padStart(2, "0");
     }
+
     function submitForm() {
       const data = {
         title: document.getElementById("titleInput").style.display === "block" ? document.getElementById("titleInput").value : document.getElementById("titleSelector").value,
@@ -195,9 +218,7 @@
         start: {
           y: document.getElementById("start_year").value,
           m: document.getElementById("start_month").value,
-          d: document.getElementById("start_day").value,
-          h: document.getElementById("start_hour").value,
-          i: document.getElementById("start_minute").value
+          d: document.getElementById("start_day").value
         },
         deadline: {
           y: document.getElementById("deadline_year").value,
@@ -206,11 +227,14 @@
         },
         calendar: calendarMode
       };
+
       Telegram.WebApp.sendData(JSON.stringify(data));
       Telegram.WebApp.close();
     }
+
     window.onload = () => {
       toggleTitleInput(document.getElementById("titleSelector"));
+      setDefaultDate();
     }
   </script>
 </body>
