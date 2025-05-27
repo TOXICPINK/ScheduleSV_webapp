@@ -8,14 +8,26 @@
     body {
       font-family: sans-serif;
       margin: 20px;
-      background-color: #f3f3f3;
+      background-color: #f7f7f7;
+    }
+    h1 {
+      font-family: 'Vazirmatn', sans-serif;
+      font-size: 24px;
+      color: #2b7bb9;
+      margin-bottom: 0;
+    }
+    p {
+      font-size: 14px;
+      color: #666;
+      margin-top: 5px;
+      margin-bottom: 20px;
     }
     label {
       font-weight: bold;
       margin-top: 10px;
       display: block;
     }
-    input {
+    input, select {
       width: 100%;
       padding: 10px;
       margin-top: 5px;
@@ -32,24 +44,68 @@
       width: 100%;
       font-size: 16px;
     }
+    .inline-inputs {
+      display: flex;
+      gap: 10px;
+    }
+    .inline-inputs input {
+      flex: 1;
+    }
   </style>
 </head>
 <body>
 
-  <h2>📝 افزودن فعالیت جدید</h2>
+  <h1>ScheduleSV</h1>
+  <p>مدیریت و پیگیری فعالیت‌های تیمی به ساده‌ترین شکل</p>
 
+  <!-- عنوان فعالیت -->
   <label for="title">عنوان فعالیت:</label>
+  <select id="preset_titles" onchange="fillTitle(this.value)">
+    <option value="">-- انتخاب کنید یا بنویسید --</option>
+    <option value="تماس با مشتری">تماس با مشتری</option>
+    <option value="جلسه داخلی">جلسه داخلی</option>
+    <option value="ارسال گزارش">ارسال گزارش</option>
+  </select>
   <input type="text" id="title" placeholder="مثلاً: تماس با مشتری">
 
+  <!-- زمان شروع -->
   <label for="start">زمان شروع:</label>
   <input type="datetime-local" id="start">
 
+  <!-- ددلاین با + و - -->
   <label for="deadline">ددلاین:</label>
-  <input type="datetime-local" id="deadline">
+  <div class="inline-inputs">
+    <input type="date" id="deadline">
+    <div>
+      <button type="button" onclick="adjustDeadline(1)">+</button><br><br>
+      <button type="button" onclick="adjustDeadline(-1)">-</button>
+    </div>
+  </div>
 
   <button onclick="sendData()">ثبت فعالیت</button>
 
   <script>
+    // انتخاب عنوان از منو
+    function fillTitle(val) {
+      document.getElementById("title").value = val;
+    }
+
+    // تنظیم تاریخ امروز پیش‌فرض
+    window.onload = () => {
+      const now = new Date();
+      const pad = n => n.toString().padStart(2, '0');
+      const local = now.toISOString().slice(0,16);
+      document.getElementById("start").value = local;
+      document.getElementById("deadline").value = now.toISOString().slice(0,10);
+    }
+
+    function adjustDeadline(days) {
+      let deadline = new Date(document.getElementById("deadline").value);
+      deadline.setDate(deadline.getDate() + days);
+      const iso = deadline.toISOString().slice(0,10);
+      document.getElementById("deadline").value = iso;
+    }
+
     function sendData() {
       const data = {
         title: document.getElementById("title").value,
@@ -58,18 +114,15 @@
       };
 
       if (!data.title || !data.start || !data.deadline) {
-        alert("همه فیلدها باید پر باشند!");
+        alert("لطفاً همه فیلدها را پر کنید.");
         return;
       }
 
-      // ارسال به ربات از طریق Telegram WebApp API
       Telegram.WebApp.sendData(JSON.stringify(data));
-
-      Telegram.WebApp.close(); // بستن WebApp بعد از ارسال
+      Telegram.WebApp.close();
     }
 
-    // آماده‌سازی API تلگرام
-    window.Telegram.WebApp.expand();
+    Telegram.WebApp.expand();
   </script>
 
 </body>
