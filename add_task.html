@@ -18,13 +18,6 @@
       max-width: 500px;
       margin: 0 auto;
       padding: 20px;
-      display: none;
-    }
-    .loading {
-      text-align: center;
-      font-size: 16px;
-      color: #2b7bb9;
-      margin-top: 100px;
     }
     h1 {
       text-align: center;
@@ -86,10 +79,15 @@
       text-align: center;
       width: 60px;
     }
-    #second, #second_dl {
-      opacity: 0.5;
-      pointer-events: none;
-      width: 50px;
+    .btn {
+      background: #2b7bb9;
+      color: white;
+      border: none;
+      width: 26px;
+      height: 26px;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
     }
     #submit {
       width: 100%;
@@ -104,11 +102,9 @@
   </style>
 </head>
 <body>
-<div class="loading" id="loadingMsg">⌛ در حال دریافت زمان دقیق از سرور...</div>
-
-<div class="container" id="formContainer">
+<div class="container">
   <h1>ScheduleSV</h1>
-  <p>مدیریت و پیگیری فعالیت‌های تیمی با دقت جهانی</p>
+  <p>مدیریت دقیق زمان با تقویم جهانی یا شمسی</p>
 
   <label>عنوان فعالیت:</label>
   <select id="titleSelector" onchange="toggleTitleInput(this)">
@@ -122,7 +118,7 @@
   <label>توضیحات:</label>
   <textarea id="description" placeholder="یادداشت یا نکته اضافی..."></textarea>
 
-  <div class="section-title">⏰ زمانبندی</div>
+  <div class="section-title">⏰ انتخاب تقویم</div>
   <div class="calendar-mode-toggle">
     <button class="calendar-btn active" onclick="setCalendarMode('gregorian')">میلادی</button>
     <button class="calendar-btn" onclick="setCalendarMode('jalali')">شمسی</button>
@@ -130,30 +126,19 @@
 
   <label>زمان شروع:</label>
   <div class="time-grid">
-    <div class="time-unit"><input id="start_year" readonly></div>
-    <div class="time-unit"><input id="start_month" readonly></div>
-    <div class="time-unit"><input id="start_day" readonly></div>
-    <div class="time-unit"><input id="start_hour"></div>
-    <div class="time-unit"><input id="start_minute"></div>
-    <div class="time-unit"><input id="second" readonly></div>
-  </div>
-
-  <label>ددلاین:</label>
-  <div class="time-grid">
-    <div class="time-unit"><input id="deadline_year" readonly></div>
-    <div class="time-unit"><input id="deadline_month" readonly></div>
-    <div class="time-unit"><input id="deadline_day" readonly></div>
-    <div class="time-unit"><input id="deadline_hour"></div>
-    <div class="time-unit"><input id="deadline_minute"></div>
-    <div class="time-unit"><input id="second_dl" readonly></div>
+    <div class="time-unit"><button class="btn" onclick="adjustTime('year', 1)">+</button><input id="year" readonly></div>
+    <div class="time-unit"><button class="btn" onclick="adjustTime('month', 1)">+</button><input id="month" readonly></div>
+    <div class="time-unit"><button class="btn" onclick="adjustTime('day', 1)">+</button><input id="day" readonly></div>
+    <div class="time-unit"><button class="btn" onclick="adjustTime('hour', 1)">+</button><input id="hour" readonly></div>
+    <div class="time-unit"><button class="btn" onclick="adjustTime('minute', 1)">+</button><input id="minute" readonly></div>
   </div>
 
   <button id="submit" onclick="submitForm()">ثبت فعالیت</button>
 </div>
 
 <script>
-let calendarMode = "gregorian";
-let serverNow = new Date();
+let calendarMode = 'gregorian';
+let baseDate = new Date();
 
 function toggleTitleInput(select) {
   document.getElementById("titleInput").style.display = (select.value === "custom") ? "block" : "none";
@@ -161,39 +146,32 @@ function toggleTitleInput(select) {
 
 function setCalendarMode(mode) {
   calendarMode = mode;
-  document.querySelectorAll(".calendar-btn").forEach(btn => btn.classList.remove("active"));
-  document.querySelector(`.calendar-btn[onclick*="${mode}"]`).classList.add("active");
-  setDefaultDate();
+  document.querySelectorAll('.calendar-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelector(`.calendar-btn[onclick*="${mode}"]`).classList.add('active');
+  updateFields(baseDate);
 }
 
-function setDefaultDate() {
-  const now = new Date(serverNow);
-  const j = jalaali.toJalaali(now);
-  const y = (calendarMode === "jalali") ? j.jy : now.getFullYear();
-  const m = (calendarMode === "jalali") ? j.jm : now.getMonth() + 1;
-  const d = (calendarMode === "jalali") ? j.jd : now.getDate();
-  const h = now.getHours();
-  const i = now.getMinutes();
-
-  document.getElementById("start_year").value = y;
-  document.getElementById("start_month").value = String(m).padStart(2, '0');
-  document.getElementById("start_day").value = String(d).padStart(2, '0');
-  document.getElementById("start_hour").value = String(h).padStart(2, '0');
-  document.getElementById("start_minute").value = String(i).padStart(2, '0');
-
-  document.getElementById("deadline_year").value = y;
-  document.getElementById("deadline_month").value = String(m).padStart(2, '0');
-  document.getElementById("deadline_day").value = String(d + 1).padStart(2, '0');
-  document.getElementById("deadline_hour").value = String(h).padStart(2, '0');
-  document.getElementById("deadline_minute").value = String(i).padStart(2, '0');
+function updateFields(date) {
+  const d = new Date(date);
+  const j = jalaali.toJalaali(d);
+  document.getElementById("year").value = calendarMode === 'jalali' ? j.jy : d.getFullYear();
+  document.getElementById("month").value = String(calendarMode === 'jalali' ? j.jm : d.getMonth() + 1).padStart(2, '0');
+  document.getElementById("day").value = String(calendarMode === 'jalali' ? j.jd : d.getDate()).padStart(2, '0');
+  document.getElementById("hour").value = String(d.getHours()).padStart(2, '0');
+  document.getElementById("minute").value = String(d.getMinutes()).padStart(2, '0');
 }
 
-function tickSeconds() {
-  const now = new Date();
-  const s = now.getSeconds();
-  document.getElementById("second").value = String(s).padStart(2, '0');
-  document.getElementById("second_dl").value = String(s).padStart(2, '0');
-  setTimeout(tickSeconds, 1000);
+function adjustTime(field, amount) {
+  const d = new Date(baseDate);
+  if (field === 'year') d.setFullYear(d.getFullYear() + amount);
+  if (field === 'month') d.setMonth(d.getMonth() + amount);
+  if (field === 'day') d.setDate(d.getDate() + amount);
+  if (field === 'hour') d.setHours(d.getHours() + amount);
+  if (field === 'minute') d.setMinutes(d.getMinutes() + amount);
+  if (d >= baseDate) {
+    baseDate = d;
+    updateFields(baseDate);
+  }
 }
 
 function submitForm() {
@@ -202,19 +180,12 @@ function submitForm() {
       ? document.getElementById("titleInput").value
       : document.getElementById("titleSelector").value,
     description: document.getElementById("description").value,
-    start: {
-      y: document.getElementById("start_year").value,
-      m: document.getElementById("start_month").value,
-      d: document.getElementById("start_day").value,
-      h: document.getElementById("start_hour").value,
-      i: document.getElementById("start_minute").value
-    },
-    deadline: {
-      y: document.getElementById("deadline_year").value,
-      m: document.getElementById("deadline_month").value,
-      d: document.getElementById("deadline_day").value,
-      h: document.getElementById("deadline_hour").value,
-      i: document.getElementById("deadline_minute").value
+    time: {
+      y: document.getElementById("year").value,
+      m: document.getElementById("month").value,
+      d: document.getElementById("day").value,
+      h: document.getElementById("hour").value,
+      i: document.getElementById("minute").value
     },
     calendar: calendarMode
   };
@@ -225,18 +196,12 @@ function submitForm() {
 fetch("https://worldtimeapi.org/api/timezone/Asia/Tehran")
   .then(res => res.json())
   .then(data => {
-    serverNow = new Date(data.datetime);
-    document.getElementById("loadingMsg").style.display = "none";
-    document.getElementById("formContainer").style.display = "block";
-    setDefaultDate();
-    tickSeconds();
+    baseDate = new Date(data.datetime);
+    updateFields(baseDate);
   })
   .catch(() => {
-    serverNow = new Date();
-    document.getElementById("loadingMsg").style.display = "none";
-    document.getElementById("formContainer").style.display = "block";
-    setDefaultDate();
-    tickSeconds();
+    baseDate = new Date();
+    updateFields(baseDate);
   });
 
 Telegram.WebApp.expand();
