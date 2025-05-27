@@ -21,37 +21,39 @@
       text-align: center;
       font-size: 24px;
       color: #2b7bb9;
-      margin-bottom: 4px;
     }
     p {
       text-align: center;
-      color: #777;
-      margin-bottom: 24px;
+      color: #666;
+      margin-bottom: 20px;
     }
-    label {
+    label, .section-title {
       font-weight: bold;
+      margin: 16px 0 8px;
       display: block;
-      margin: 12px 0 4px;
     }
     select, input, textarea {
       width: 100%;
       padding: 10px;
-      margin-bottom: 10px;
       border-radius: 8px;
       border: 1px solid #ccc;
       font-size: 14px;
+      margin-bottom: 12px;
+    }
+    input[readonly] {
+      background-color: #eee;
     }
     .calendar-mode-toggle {
       display: flex;
-      gap: 10px;
       justify-content: center;
-      margin: 10px 0 20px;
+      gap: 10px;
+      margin-bottom: 16px;
     }
     .calendar-btn {
       padding: 6px 12px;
-      border: 1px solid #2b7bb9;
       border-radius: 8px;
-      background: #fff;
+      border: 1px solid #2b7bb9;
+      background: white;
       color: #2b7bb9;
       cursor: pointer;
     }
@@ -62,6 +64,7 @@
     .time-grid {
       display: flex;
       gap: 10px;
+      justify-content: space-between;
     }
     .time-unit {
       position: relative;
@@ -83,189 +86,154 @@
       height: 20px;
       border-radius: 4px;
       font-size: 14px;
-      line-height: 18px;
       cursor: pointer;
     }
+    .btn-left { left: -22px; }
+    .btn-right { right: -22px; }
     .time-unit:hover .btn {
       opacity: 1;
       pointer-events: all;
     }
-    .btn-left { left: -25px; }
-    .btn-right { right: -25px; }
-    button#submit {
+    #second {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    #submit {
       width: 100%;
-      padding: 12px;
       background: #2b7bb9;
       color: white;
       border: none;
       border-radius: 8px;
+      padding: 12px;
       font-size: 16px;
-      margin-top: 20px;
-    }
-    #titleInput { display: none; }
-    .section-title {
-      font-weight: bold;
-      font-size: 16px;
-      color: #333;
       margin-top: 20px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>ScheduleSV</h1>
-    <p>مدیریت و پیگیری فعالیت‌های تیمی به ساده‌ترین شکل</p>
+<div class="container">
+  <h1>ScheduleSV</h1>
+  <p>مدیریت و پیگیری فعالیت‌های تیمی با دقت جهانی</p>
 
-    <label>عنوان فعالیت:</label>
-    <select id="titleSelector" onchange="toggleTitleInput(this)">
-      <option value="custom">بنویسید</option>
-      <option value="تماس با مشتری">تماس با مشتری</option>
-      <option value="جلسه داخلی">جلسه داخلی</option>
-      <option value="ارسال گزارش">ارسال گزارش</option>
-    </select>
-    <input type="text" id="titleInput" placeholder="عنوان دلخواه">
+  <label>عنوان فعالیت:</label>
+  <select id="titleSelector" onchange="toggleTitleInput(this)">
+    <option value="custom">بنویسید</option>
+    <option value="تماس با مشتری">تماس با مشتری</option>
+    <option value="جلسه داخلی">جلسه داخلی</option>
+    <option value="ارسال گزارش">ارسال گزارش</option>
+  </select>
+  <input type="text" id="titleInput" placeholder="عنوان دلخواه">
 
-    <label>توضیحات:</label>
-    <textarea id="description" placeholder="یادداشت یا نکته اضافی..."></textarea>
+  <label>توضیحات:</label>
+  <textarea id="description" placeholder="یادداشت یا نکته اضافی..."></textarea>
 
-    <div class="section-title">⏰ زمانبندی</div>
-    <div class="calendar-mode-toggle">
-      <button class="calendar-btn active" onclick="setCalendarMode('gregorian')">میلادی</button>
-      <button class="calendar-btn" onclick="setCalendarMode('jalali')">شمسی</button>
-    </div>
-
-    <label>زمان شروع:</label>
-    <div class="time-grid" id="startTimeGrid">
-      <div class="time-unit">
-        <button class="btn btn-left" onclick="adjustTime('start', 'year', -1)">-</button>
-        <input id="start_year" readonly>
-        <button class="btn btn-right" onclick="adjustTime('start', 'year', 1)">+</button>
-      </div>
-      <div class="time-unit">
-        <button class="btn btn-left" onclick="adjustTime('start', 'month', -1)">-</button>
-        <input id="start_month" readonly>
-        <button class="btn btn-right" onclick="adjustTime('start', 'month', 1)">+</button>
-      </div>
-      <div class="time-unit">
-        <button class="btn btn-left" onclick="adjustTime('start', 'day', -1)">-</button>
-        <input id="start_day" readonly>
-        <button class="btn btn-right" onclick="adjustTime('start', 'day', 1)">+</button>
-      </div>
-    </div>
-
-    <label>ددلاین:</label>
-    <div class="time-grid" id="deadlineGrid">
-      <div class="time-unit">
-        <button class="btn btn-left" onclick="adjustTime('deadline', 'year', -1)">-</button>
-        <input id="deadline_year" readonly>
-        <button class="btn btn-right" onclick="adjustTime('deadline', 'year', 1)">+</button>
-      </div>
-      <div class="time-unit">
-        <button class="btn btn-left" onclick="adjustTime('deadline', 'month', -1)">-</button>
-        <input id="deadline_month" readonly>
-        <button class="btn btn-right" onclick="adjustTime('deadline', 'month', 1)">+</button>
-      </div>
-      <div class="time-unit">
-        <button class="btn btn-left" onclick="adjustTime('deadline', 'day', -1)">-</button>
-        <input id="deadline_day" readonly>
-        <button class="btn btn-right" onclick="adjustTime('deadline', 'day', 1)">+</button>
-      </div>
-    </div>
-
-    <button id="submit" onclick="submitForm()">ثبت فعالیت</button>
+  <div class="section-title">⏰ زمانبندی</div>
+  <div class="calendar-mode-toggle">
+    <button class="calendar-btn active" onclick="setCalendarMode('gregorian')">میلادی</button>
+    <button class="calendar-btn" onclick="setCalendarMode('jalali')">شمسی</button>
   </div>
 
-  <script>
-    let calendarMode = "gregorian";
-    let serverNow = new Date();
+  <label>زمان شروع:</label>
+  <div class="time-grid">
+    <div class="time-unit"><button class="btn btn-left" onclick="adjustTime('start', 'year', -1)">-</button><input id="start_year" readonly><button class="btn btn-right" onclick="adjustTime('start', 'year', 1)">+</button></div>
+    <div class="time-unit"><button class="btn btn-left" onclick="adjustTime('start', 'month', -1)">-</button><input id="start_month" readonly><button class="btn btn-right" onclick="adjustTime('start', 'month', 1)">+</button></div>
+    <div class="time-unit"><button class="btn btn-left" onclick="adjustTime('start', 'day', -1)">-</button><input id="start_day" readonly><button class="btn btn-right" onclick="adjustTime('start', 'day', 1)">+</button></div>
+    <div class="time-unit"><input id="second" readonly></div>
+  </div>
 
-    function setCalendarMode(mode) {
-      calendarMode = mode;
-      document.querySelectorAll('.calendar-btn').forEach(btn => btn.classList.remove('active'));
-      document.querySelector(`.calendar-btn[onclick*="${mode}"]`).classList.add('active');
-      setDefaultDate();
-    }
+  <label>ددلاین:</label>
+  <div class="time-grid">
+    <div class="time-unit"><button class="btn btn-left" onclick="adjustTime('deadline', 'year', -1)">-</button><input id="deadline_year" readonly><button class="btn btn-right" onclick="adjustTime('deadline', 'year', 1)">+</button></div>
+    <div class="time-unit"><button class="btn btn-left" onclick="adjustTime('deadline', 'month', -1)">-</button><input id="deadline_month" readonly><button class="btn btn-right" onclick="adjustTime('deadline', 'month', 1)">+</button></div>
+    <div class="time-unit"><button class="btn btn-left" onclick="adjustTime('deadline', 'day', -1)">-</button><input id="deadline_day" readonly><button class="btn btn-right" onclick="adjustTime('deadline', 'day', 1)">+</button></div>
+    <div class="time-unit"><input id="second_dl" readonly></div>
+  </div>
 
-    function toggleTitleInput(select) {
-      const input = document.getElementById("titleInput");
-      input.style.display = (select.value === "custom") ? "block" : "none";
-    }
+  <button id="submit" onclick="submitForm()">ثبت فعالیت</button>
+</div>
 
-    function setDefaultDate() {
-      const now = new Date(serverNow);
-      let y, m, d;
+<script>
+let calendarMode = "gregorian";
+let serverNow = new Date();
 
-      if (calendarMode === "jalali") {
-        const j = jalaali.toJalaali(now);
-        y = j.jy; m = j.jm; d = j.jd;
-      } else {
-        y = now.getFullYear(); m = now.getMonth() + 1; d = now.getDate();
-      }
+function toggleTitleInput(select) {
+  document.getElementById("titleInput").style.display = (select.value === "custom") ? "block" : "none";
+}
 
-      document.getElementById("start_year").value = y;
-      document.getElementById("start_month").value = String(m).padStart(2, '0');
-      document.getElementById("start_day").value = String(d).padStart(2, '0');
-      document.getElementById("deadline_year").value = y;
-      document.getElementById("deadline_month").value = String(m).padStart(2, '0');
-      document.getElementById("deadline_day").value = String(d + 1).padStart(2, '0');
-    }
+function setCalendarMode(mode) {
+  calendarMode = mode;
+  document.querySelectorAll(".calendar-btn").forEach(btn => btn.classList.remove("active"));
+  document.querySelector(`.calendar-btn[onclick*="${mode}"]`).classList.add("active");
+  setDefaultDate();
+}
 
-    function adjustTime(type, field, diff) {
-      const id = `${type}_${field}`;
-      const input = document.getElementById(id);
-      let value = parseInt(input.value);
-      let newValue = value + diff;
+function setDefaultDate() {
+  const now = new Date(serverNow);
+  const j = jalaali.toJalaali(now);
+  const y = (calendarMode === "jalali") ? j.jy : now.getFullYear();
+  const m = (calendarMode === "jalali") ? j.jm : now.getMonth() + 1;
+  const d = (calendarMode === "jalali") ? j.jd : now.getDate();
 
-      if (type === "start") {
-        const startDate = getDateFromFields("start");
-        if (new Date(startDate) < serverNow && diff < 0) return;
-      }
+  ["start", "deadline"].forEach(prefix => {
+    document.getElementById(`${prefix}_year`).value = y;
+    document.getElementById(`${prefix}_month`).value = String(m).padStart(2, '0');
+    document.getElementById(`${prefix}_day`).value = String(d).padStart(2, '0');
+  });
+}
 
-      if (field === "month") newValue = ((newValue - 1 + 12) % 12) + 1;
-      if (field === "day") newValue = Math.max(1, Math.min(31, newValue));
-      if (field === "year") newValue = Math.max(2024, newValue);
+function adjustTime(type, field, diff) {
+  const el = document.getElementById(`${type}_${field}`);
+  let val = parseInt(el.value) + diff;
+  if (field === "month") val = ((val - 1 + 12) % 12) + 1;
+  if (field === "day") val = Math.max(1, Math.min(31, val));
+  if (field === "year") val = Math.max(serverNow.getFullYear(), val);
+  el.value = val.toString().padStart(2, "0");
+}
 
-      input.value = newValue.toString().padStart(2, "0");
-    }
+function tickSeconds() {
+  const now = new Date();
+  const s = now.getSeconds();
+  document.getElementById("second").value = String(s).padStart(2, '0');
+  document.getElementById("second_dl").value = String(s).padStart(2, '0');
+  setTimeout(tickSeconds, 1000);
+}
 
-    function getDateFromFields(type) {
-      const y = document.getElementById(`${type}_year`).value;
-      const m = document.getElementById(`${type}_month`).value;
-      const d = document.getElementById(`${type}_day`).value;
-      return `${y}-${m}-${d}T00:00:00`;
-    }
+function submitForm() {
+  const data = {
+    title: document.getElementById("titleInput").style.display === "block"
+      ? document.getElementById("titleInput").value
+      : document.getElementById("titleSelector").value,
+    description: document.getElementById("description").value,
+    start: {
+      y: document.getElementById("start_year").value,
+      m: document.getElementById("start_month").value,
+      d: document.getElementById("start_day").value
+    },
+    deadline: {
+      y: document.getElementById("deadline_year").value,
+      m: document.getElementById("deadline_month").value,
+      d: document.getElementById("deadline_day").value
+    },
+    calendar: calendarMode
+  };
+  Telegram.WebApp.sendData(JSON.stringify(data));
+  Telegram.WebApp.close();
+}
 
-    function submitForm() {
-      const data = {
-        title: document.getElementById("titleInput").style.display === "block" ? document.getElementById("titleInput").value : document.getElementById("titleSelector").value,
-        description: document.getElementById("description").value,
-        start: {
-          y: document.getElementById("start_year").value,
-          m: document.getElementById("start_month").value,
-          d: document.getElementById("start_day").value
-        },
-        deadline: {
-          y: document.getElementById("deadline_year").value,
-          m: document.getElementById("deadline_month").value,
-          d: document.getElementById("deadline_day").value
-        },
-        calendar: calendarMode
-      };
-      Telegram.WebApp.sendData(JSON.stringify(data));
-      Telegram.WebApp.close();
-    }
+fetch("https://worldtimeapi.org/api/timezone/Asia/Tehran")
+  .then(res => res.json())
+  .then(data => {
+    serverNow = new Date(data.datetime);
+    setDefaultDate();
+    tickSeconds();
+  })
+  .catch(() => {
+    serverNow = new Date();
+    setDefaultDate();
+    tickSeconds();
+  });
 
-    fetch("https://worldtimeapi.org/api/timezone/Asia/Tehran")
-      .then(res => res.json())
-      .then(data => {
-        serverNow = new Date(data.datetime);
-        setDefaultDate();
-      })
-      .catch(err => {
-        console.warn("⛔️ دریافت زمان از سرور جهانی ممکن نشد. از زمان محلی استفاده می‌شود.");
-        serverNow = new Date();
-        setDefaultDate();
-      });
-  </script>
+Telegram.WebApp.expand();
+</script>
 </body>
 </html>
