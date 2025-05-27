@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>افزودن فعالیت</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+      background-color: #f3f3f3;
+    }
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #2b7bb9;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      width: 100%;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>📝 افزودن فعالیت جدید</h2>
+
+  <label for="title">عنوان فعالیت:</label>
+  <input type="text" id="title" placeholder="مثلاً: تماس با مشتری">
+
+  <label for="start">زمان شروع:</label>
+  <input type="datetime-local" id="start">
+
+  <label for="deadline">ددلاین:</label>
+  <input type="datetime-local" id="deadline">
+
+  <button onclick="sendData()">ثبت فعالیت</button>
+
+  <script>
+    function sendData() {
+      const data = {
+        title: document.getElementById("title").value,
+        start: document.getElementById("start").value,
+        deadline: document.getElementById("deadline").value
+      };
+
+      if (!data.title || !data.start || !data.deadline) {
+        alert("همه فیلدها باید پر باشند!");
+        return;
+      }
+
+      // ارسال به ربات از طریق Telegram WebApp API
+      Telegram.WebApp.sendData(JSON.stringify(data));
+
+      Telegram.WebApp.close(); // بستن WebApp بعد از ارسال
+    }
+
+    // آماده‌سازی API تلگرام
+    window.Telegram.WebApp.expand();
+  </script>
+
+</body>
+</html>
