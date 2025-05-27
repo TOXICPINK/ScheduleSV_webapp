@@ -19,7 +19,7 @@
             border-radius: 15px;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
             text-align: center;
-            width: 600px;
+            width: 700px;
         }
         h2 {
             color: #007bff;
@@ -40,21 +40,28 @@
         }
         .time-controls {
             display: flex;
+            flex-direction: column;
             align-items: center;
+            position: relative;
+        }
+        .time-controls span.separator {
+            font-size: 18px;
+            margin: 0 5px;
+            align-self: center;
+            padding-top: 30px;
         }
         .time-input {
-            width: 50px;
+            width: 60px;
             padding: 8px;
             text-align: center;
             font-size: 16px;
-            margin: 0 5px;
         }
         .time-input:disabled {
             color: #aaa;
             background-color: #eee;
         }
         .time-controls button {
-            padding: 3px 8px;
+            padding: 2px 6px;
             font-size: 14px;
             border: none;
             border-radius: 5px;
@@ -76,104 +83,129 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>ScheduleSV</h2>
-        <div class="time-display" id="live-time">در حال بارگذاری...</div>
-        <label>📝 تعیین دستی زمان شروع:</label>
-        <div class="time-row">
-            <div class="time-controls">
-                <button onclick="adjustTime('year', -1)" id="year-minus">-</button>
-                <input class="time-input" id="year" readonly>
-                <button onclick="adjustTime('year', 1)" id="year-plus">+</button>
-            </div>
-            <div class="time-controls">
-                <button onclick="adjustTime('month', -1)" id="month-minus">-</button>
-                <input class="time-input" id="month" readonly>
-                <button onclick="adjustTime('month', 1)" id="month-plus">+</button>
-            </div>
-            <div class="time-controls">
-                <button onclick="adjustTime('day', -1)" id="day-minus">-</button>
-                <input class="time-input" id="day" readonly>
-                <button onclick="adjustTime('day', 1)" id="day-plus">+</button>
-            </div>
-            <div class="time-controls">
-                <span>-</span>
-            </div>
-            <div class="time-controls">
-                <button onclick="adjustTime('hour', -1)" id="hour-minus">-</button>
-                <input class="time-input" id="hour" readonly>
-                <button onclick="adjustTime('hour', 1)" id="hour-plus">+</button>
-            </div>
-            <div class="time-controls">
-                <button onclick="adjustTime('minute', -1)" id="minute-minus">-</button>
-                <input class="time-input" id="minute" readonly>
-                <button onclick="adjustTime('minute', 1)" id="minute-plus">+</button>
-            </div>
-            <div class="time-controls">
-                <input class="time-input" id="second" disabled>
-            </div>
+<div class="container">
+    <h2>ScheduleSV</h2>
+    <div class="time-display" id="live-time">در حال بارگذاری...</div>
+    <label>📝 تعیین دستی زمان شروع:</label>
+    <div class="time-row">
+        <div class="time-controls">
+            <button onclick="adjustTime('year', 1)" id="year-plus">+</button>
+            <input class="time-input" id="year" readonly>
+            <button onclick="adjustTime('year', -1)" id="year-minus">-</button>
         </div>
-        <button class="submit-btn">ثبت فعالیت</button>
+        <span class="separator">/</span>
+        <div class="time-controls">
+            <button onclick="adjustTime('month', 1)" id="month-plus">+</button>
+            <input class="time-input" id="month" readonly>
+            <button onclick="adjustTime('month', -1)" id="month-minus">-</button>
+        </div>
+        <span class="separator">/</span>
+        <div class="time-controls">
+            <button onclick="adjustTime('day', 1)" id="day-plus">+</button>
+            <input class="time-input" id="day" readonly>
+            <button onclick="adjustTime('day', -1)" id="day-minus">-</button>
+        </div>
+        <span class="separator">-</span>
+        <div class="time-controls">
+            <button onclick="adjustTime('hour', 1)" id="hour-plus">+</button>
+            <input class="time-input" id="hour" readonly>
+            <button onclick="adjustTime('hour', -1)" id="hour-minus">-</button>
+        </div>
+        <span class="separator">:</span>
+        <div class="time-controls">
+            <button onclick="adjustTime('minute', 1)" id="minute-plus">+</button>
+            <input class="time-input" id="minute" readonly>
+            <button onclick="adjustTime('minute', -1)" id="minute-minus">-</button>
+        </div>
+        <span class="separator">:</span>
+        <div class="time-controls">
+            <input class="time-input" id="second" disabled>
+        </div>
     </div>
+    <button class="submit-btn">ثبت فعالیت</button>
+</div>
+<script>
+    let currentTime = null;
+    let selectedTime = null;
 
-    <script>
-        let currentTime = null;
-        let selectedTime = null;
-
-        async function fetchTime() {
-            try {
-                const response = await fetch('https://schedule-time-server.onrender.com/api/time');
-                const data = await response.json();
-                currentTime = { ...data.jalali };
-                selectedTime = { ...data.jalali };
-                updateLiveTime();
-                updateManualFields();
-            } catch (e) {
-                document.getElementById('live-time').innerText = 'خطا در دریافت زمان از سرور';
-            }
+    async function fetchTime() {
+        try {
+            const response = await fetch('https://schedule-time-server.onrender.com/api/time');
+            const data = await response.json();
+            currentTime = { ...data.jalali };
+            selectedTime = { ...data.jalali };
+            updateLiveTime();
+            updateManualFields();
+        } catch (e) {
+            document.getElementById('live-time').innerText = 'خطا در دریافت زمان از سرور';
         }
+    }
 
-        function updateLiveTime() {
-            const { year, month, day, hour, minute, second } = currentTime;
-            document.getElementById('live-time').innerText = `${year}/${String(month).padStart(2,'0')}/${String(day).padStart(2,'0')} - ${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')}:${String(second).padStart(2,'0')}`;
-            document.getElementById('second').value = String(second).padStart(2, '0');
-            setTimeout(() => {
-                currentTime.second++;
-                if (currentTime.second >= 60) {
-                    currentTime.second = 0;
-                    currentTime.minute++;
-                    if (currentTime.minute >= 60) {
-                        currentTime.minute = 0;
-                        currentTime.hour++;
+    function updateLiveTime() {
+        const { year, month, day, hour, minute, second } = currentTime;
+        document.getElementById('live-time').innerText = `${year}/${String(month).padStart(2,'0')}/${String(day).padStart(2,'0')} - ${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')}:${String(second).padStart(2,'0')}`;
+        document.getElementById('second').value = String(second).padStart(2, '0');
+        setTimeout(() => {
+            currentTime.second++;
+            if (currentTime.second >= 60) {
+                currentTime.second = 0;
+                currentTime.minute++;
+                if (currentTime.minute >= 60) {
+                    currentTime.minute = 0;
+                    currentTime.hour++;
+                    if (currentTime.hour >= 24) {
+                        currentTime.hour = 0;
+                        currentTime.day++;
+                        // Note: Extend with month/year change as needed
                     }
                 }
-                updateLiveTime();
-            }, 1000);
-        }
+            }
+            updateLiveTime();
+        }, 1000);
+    }
 
-        function updateManualFields() {
-            const fields = ['year', 'month', 'day', 'hour', 'minute'];
-            fields.forEach(field => {
-                document.getElementById(field).value = selectedTime[field];
-            });
-            updateButtonStates();
-        }
+    function updateManualFields() {
+        const fields = ['year', 'month', 'day', 'hour', 'minute'];
+        fields.forEach(field => {
+            document.getElementById(field).value = selectedTime[field];
+        });
+        updateButtonStates();
+    }
 
-        function adjustTime(field, delta) {
-            const newVal = selectedTime[field] + delta;
+    function adjustTime(field, delta) {
+        const newVal = selectedTime[field] + delta;
+        const tempTime = { ...selectedTime, [field]: newVal };
+        if (!isBeforeCurrent(tempTime)) {
             selectedTime[field] = newVal;
             updateManualFields();
         }
+    }
 
-        function updateButtonStates() {
-            const fields = ['year', 'month', 'day', 'hour', 'minute'];
-            fields.forEach(field => {
-                const minusBtn = document.getElementById(`${field}-minus`);
-                minusBtn.disabled = selectedTime[field] <= currentTime[field];
-            });
+    function isBeforeCurrent(time) {
+        const fields = ['year', 'month', 'day', 'hour', 'minute'];
+        for (let i = 0; i < fields.length; i++) {
+            const key = fields[i];
+            if (time[key] > currentTime[key]) return false;
+            if (time[key] < currentTime[key]) return true;
         }
+        return true;
+    }
 
-        fetchTime();
-    </script>
+    function updateButtonStates() {
+        const fields = ['year', 'month', 'day', 'hour', 'minute'];
+        fields.forEach(field => {
+            const minusBtn = document.getElementById(`${field}-minus`);
+            const plusBtn = document.getElementById(`${field}-plus`);
+
+            const tempDec = { ...selectedTime, [field]: selectedTime[field] - 1 };
+            const tempInc = { ...selectedTime, [field]: selectedTime[field] + 1 };
+
+            minusBtn.disabled = isBeforeCurrent(tempDec);
+            plusBtn.disabled = false; // always allow increase
+        });
+    }
+
+    fetchTime();
+</script>
 </body>
 </html>
