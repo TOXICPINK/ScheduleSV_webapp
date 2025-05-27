@@ -1,132 +1,171 @@
 <!DOCTYPE html>
 <html lang="fa">
 <head>
-  <meta charset="UTF-8">
-  <title>ScheduleSV | برنامه‌ریزی تیم</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      background-color: #f5f5f5;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      direction: rtl;
-    }
-    .container {
-      background-color: white;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-      width: 400px;
-      text-align: center;
-    }
-    h1 {
-      color: #007bff;
-      margin-bottom: 15px;
-    }
-    .live-time {
-      font-weight: bold;
-      font-size: 20px;
-      background: #eee;
-      padding: 10px;
-      margin-bottom: 20px;
-      border-radius: 5px;
-    }
-    .manual-inputs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      justify-content: center;
-    }
-    .manual-inputs input {
-      width: 50px;
-      text-align: center;
-      padding: 5px;
-      font-size: 16px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-    button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 16px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>ScheduleSV | برنامه‌ریزی تیم</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 30px 40px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 500px;
+        }
+        h2 {
+            color: #007bff;
+        }
+        .time-display {
+            font-size: 20px;
+            background-color: #e9e9e9;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        .time-row {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .time-input {
+            width: 50px;
+            padding: 8px;
+            text-align: center;
+            font-size: 16px;
+        }
+        .time-input:disabled {
+            color: #aaa;
+            background-color: #eee;
+        }
+        .time-controls button {
+            padding: 5px 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .time-controls button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .submit-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h1>ScheduleSV</h1>
-    <div>🕰 زمان:</div>
-    <div class="live-time" id="liveTime">در حال بارگذاری...</div>
-
-    <div>📄 تعیین دستی زمان شروع:</div>
-    <div class="manual-inputs">
-      <input type="number" id="second" min="0" max="59">
-      <input type="number" id="minute" min="0" max="59">
-      <input type="number" id="hour" min="0" max="23">
-      <span>-</span>
-      <input type="number" id="day" min="1" max="31">
-      <input type="number" id="month" min="1" max="12">
-      <input type="number" id="year" min="1300" max="1500">
+    <div class="container">
+        <h2>ScheduleSV</h2>
+        <div class="time-display" id="live-time">در حال بارگذاری...</div>
+        <label>📝 تعیین دستی زمان شروع:</label>
+        <div class="time-row">
+            <div class="time-controls">
+                <button onclick="adjustTime('year', -1)" id="year-minus">-</button>
+                <input class="time-input" id="year" readonly>
+                <button onclick="adjustTime('year', 1)" id="year-plus">+</button>
+            </div>
+            <div class="time-controls">
+                <button onclick="adjustTime('month', -1)" id="month-minus">-</button>
+                <input class="time-input" id="month" readonly>
+                <button onclick="adjustTime('month', 1)" id="month-plus">+</button>
+            </div>
+            <div class="time-controls">
+                <button onclick="adjustTime('day', -1)" id="day-minus">-</button>
+                <input class="time-input" id="day" readonly>
+                <button onclick="adjustTime('day', 1)" id="day-plus">+</button>
+            </div>
+            <span style="align-self: center; font-size: 20px;">-</span>
+            <div class="time-controls">
+                <button onclick="adjustTime('hour', -1)" id="hour-minus">-</button>
+                <input class="time-input" id="hour" readonly>
+                <button onclick="adjustTime('hour', 1)" id="hour-plus">+</button>
+            </div>
+            <div class="time-controls">
+                <button onclick="adjustTime('minute', -1)" id="minute-minus">-</button>
+                <input class="time-input" id="minute" readonly>
+                <button onclick="adjustTime('minute', 1)" id="minute-plus">+</button>
+            </div>
+            <input class="time-input" id="second" disabled>
+        </div>
+        <button class="submit-btn">ثبت فعالیت</button>
     </div>
 
-    <button>ثبت فعالیت</button>
-  </div>
+    <script>
+        let currentTime = null;
+        let selectedTime = null;
 
-  <script>
-    let manualEdited = false;
-
-    const yearInput = document.getElementById("year");
-    const monthInput = document.getElementById("month");
-    const dayInput = document.getElementById("day");
-    const hourInput = document.getElementById("hour");
-    const minuteInput = document.getElementById("minute");
-    const secondInput = document.getElementById("second");
-
-    const inputs = [yearInput, monthInput, dayInput, hourInput, minuteInput];
-
-    inputs.forEach(input => {
-      input.addEventListener("input", () => {
-        manualEdited = true;
-      });
-    });
-
-    function pad(n) {
-      return n.toString().padStart(2, '0');
-    }
-
-    async function fetchTime() {
-      try {
-        const res = await fetch("https://schedule-time-server.onrender.com/api/time");
-        const data = await res.json();
-        const t = data.jalali;
-
-        // نمایش در بخش اصلی زنده
-        document.getElementById("liveTime").textContent = `${t.year}/${pad(t.month)}/${pad(t.day)} - ${pad(t.hour)}:${pad(t.minute)}:${pad(t.second)}`;
-
-        // در صورت عدم ویرایش دستی، مقداردهی اولیه یا آپدیت زنده
-        if (!manualEdited) {
-          yearInput.value = t.year;
-          monthInput.value = pad(t.month);
-          dayInput.value = pad(t.day);
-          hourInput.value = pad(t.hour);
-          minuteInput.value = pad(t.minute);
-          secondInput.value = pad(t.second);
+        async function fetchTime() {
+            try {
+                const response = await fetch('https://schedule-time-server.onrender.com/api/time');
+                const data = await response.json();
+                currentTime = { ...data.jalali };
+                selectedTime = { ...data.jalali };
+                updateLiveTime();
+                updateManualFields();
+            } catch (e) {
+                document.getElementById('live-time').innerText = 'خطا در دریافت زمان از سرور';
+            }
         }
-      } catch (err) {
-        document.getElementById("liveTime").textContent = "❌ خطا در دریافت زمان از سرور";
-      }
-    }
 
-    fetchTime();
-    setInterval(fetchTime, 1000);
-  </script>
+        function updateLiveTime() {
+            const { year, month, day, hour, minute, second } = currentTime;
+            document.getElementById('live-time').innerText = `${year}/${String(month).padStart(2,'0')}/${String(day).padStart(2,'0')} - ${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')}:${String(second).padStart(2,'0')}`;
+            document.getElementById('second').value = String(second).padStart(2, '0');
+            setTimeout(() => {
+                currentTime.second++;
+                if (currentTime.second >= 60) {
+                    currentTime.second = 0;
+                    currentTime.minute++;
+                    if (currentTime.minute >= 60) {
+                        currentTime.minute = 0;
+                        currentTime.hour++;
+                        // ...
+                    }
+                }
+                updateLiveTime();
+            }, 1000);
+        }
+
+        function updateManualFields() {
+            const fields = ['year', 'month', 'day', 'hour', 'minute'];
+            fields.forEach(field => {
+                document.getElementById(field).value = selectedTime[field];
+            });
+            updateButtonStates();
+        }
+
+        function adjustTime(field, delta) {
+            const newVal = selectedTime[field] + delta;
+            selectedTime[field] = newVal;
+            updateManualFields();
+        }
+
+        function updateButtonStates() {
+            const fields = ['year', 'month', 'day', 'hour', 'minute'];
+            fields.forEach(field => {
+                const minusBtn = document.getElementById(`${field}-minus`);
+                minusBtn.disabled = selectedTime[field] <= currentTime[field];
+            });
+        }
+
+        fetchTime();
+    </script>
 </body>
 </html>
