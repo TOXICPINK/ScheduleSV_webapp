@@ -19,7 +19,7 @@
             border-radius: 15px;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
             text-align: center;
-            width: 500px;
+            width: 600px;
         }
         h2 {
             color: #007bff;
@@ -38,19 +38,24 @@
             gap: 10px;
             margin-bottom: 20px;
         }
+        .time-controls {
+            display: flex;
+            align-items: center;
+        }
         .time-input {
             width: 50px;
             padding: 8px;
             text-align: center;
             font-size: 16px;
+            margin: 0 5px;
         }
         .time-input:disabled {
             color: #aaa;
             background-color: #eee;
         }
         .time-controls button {
-            padding: 5px 10px;
-            font-size: 16px;
+            padding: 3px 8px;
+            font-size: 14px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
@@ -91,7 +96,9 @@
                 <input class="time-input" id="day" readonly>
                 <button onclick="adjustTime('day', 1)" id="day-plus">+</button>
             </div>
-            <span style="align-self: center; font-size: 20px;">-</span>
+            <div class="time-controls">
+                <span>-</span>
+            </div>
             <div class="time-controls">
                 <button onclick="adjustTime('hour', -1)" id="hour-minus">-</button>
                 <input class="time-input" id="hour" readonly>
@@ -102,7 +109,9 @@
                 <input class="time-input" id="minute" readonly>
                 <button onclick="adjustTime('minute', 1)" id="minute-plus">+</button>
             </div>
-            <input class="time-input" id="second" disabled>
+            <div class="time-controls">
+                <input class="time-input" id="second" disabled>
+            </div>
         </div>
         <button class="submit-btn">ثبت فعالیت</button>
     </div>
@@ -136,7 +145,6 @@
                     if (currentTime.minute >= 60) {
                         currentTime.minute = 0;
                         currentTime.hour++;
-                        // ...
                     }
                 }
                 updateLiveTime();
