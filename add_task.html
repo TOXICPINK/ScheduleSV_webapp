@@ -32,40 +32,29 @@
             border-radius: 10px;
             font-weight: bold;
         }
-        .time-row {
+        .duration-inputs {
             display: flex;
             justify-content: center;
-            align-items: center;
-            gap: 5px;
+            gap: 15px;
             margin-bottom: 20px;
         }
-        .time-controls {
+        .duration-group {
             display: flex;
             flex-direction: column;
             align-items: center;
-            position: relative;
         }
-        .time-input {
+        .duration-group label {
+            margin-bottom: 5px;
+        }
+        .duration-group input {
             width: 60px;
-            padding: 8px;
             text-align: center;
+            padding: 6px;
             font-size: 16px;
         }
-        .time-input:disabled {
-            color: #aaa;
-            background-color: #eee;
-        }
-        .time-controls button {
-            padding: 2px 6px;
-            font-size: 14px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 2px 0;
-        }
-        .time-controls button:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
+        .result-time {
+            margin-top: 20px;
+            font-size: 18px;
         }
         .submit-btn {
             background-color: #007bff;
@@ -76,133 +65,95 @@
             border-radius: 5px;
             cursor: pointer;
         }
-        .separator {
-            font-size: 20px;
-            margin: 0 5px;
-        }
     </style>
 </head>
 <body>
 <div class="container">
     <h2>ScheduleSV</h2>
     <div class="time-display" id="live-time">در حال بارگذاری...</div>
-    <label>📝 تعیین دستی زمان شروع:</label>
-    <div class="time-row">
-        <div class="time-controls">
-            <button onclick="adjustTime('year', 1)" id="year-plus">+</button>
-            <input class="time-input" id="year" readonly>
-            <button onclick="adjustTime('year', -1)" id="year-minus">-</button>
+    <label>📝 شروع فعالیت بعد از:</label>
+    <div class="duration-inputs">
+        <div class="duration-group">
+            <label>روز</label>
+            <input type="number" id="days" value="0" min="0">
         </div>
-        <span class="separator">/</span>
-        <div class="time-controls">
-            <button onclick="adjustTime('month', 1)" id="month-plus">+</button>
-            <input class="time-input" id="month" readonly>
-            <button onclick="adjustTime('month', -1)" id="month-minus">-</button>
+        <div class="duration-group">
+            <label>ساعت</label>
+            <input type="number" id="hours" value="0" min="0">
         </div>
-        <span class="separator">/</span>
-        <div class="time-controls">
-            <button onclick="adjustTime('day', 1)" id="day-plus">+</button>
-            <input class="time-input" id="day" readonly>
-            <button onclick="adjustTime('day', -1)" id="day-minus">-</button>
-        </div>
-        <span class="separator">-</span>
-        <div class="time-controls">
-            <button onclick="adjustTime('hour', 1)" id="hour-plus">+</button>
-            <input class="time-input" id="hour" readonly>
-            <button onclick="adjustTime('hour', -1)" id="hour-minus">-</button>
-        </div>
-        <span class="separator">:</span>
-        <div class="time-controls">
-            <button onclick="adjustTime('minute', 1)" id="minute-plus">+</button>
-            <input class="time-input" id="minute" readonly>
-            <button onclick="adjustTime('minute', -1)" id="minute-minus">-</button>
-        </div>
-        <span class="separator">:</span>
-        <div class="time-controls">
-            <input class="time-input" id="second" disabled>
+        <div class="duration-group">
+            <label>دقیقه</label>
+            <input type="number" id="minutes" value="0" min="0">
         </div>
     </div>
-    <button class="submit-btn">ثبت فعالیت</button>
+    <div class="result-time">
+        <div>⏱ زمان اجرا: <span id="final-time">--</span></div>
+        <div>⏳ زمان باقی‌مانده: <span id="time-left">--</span></div>
+    </div>
+    <button class="submit-btn" onclick="calculateStartTime()">ثبت فعالیت</button>
 </div>
 <script>
     let currentTime = null;
-    let selectedTime = null;
+    let timerInterval;
 
     async function fetchTime() {
         try {
             const response = await fetch('https://schedule-time-server.onrender.com/api/time');
             const data = await response.json();
-            currentTime = { ...data.jalali };
-            selectedTime = { ...data.jalali };
+            currentTime = new Date(
+                data.gregorian.year,
+                data.gregorian.month - 1,
+                data.gregorian.day,
+                data.gregorian.hour,
+                data.gregorian.minute,
+                data.gregorian.second
+            );
             updateLiveTime();
-            updateManualFields();
+            setInterval(() => {
+                currentTime.setSeconds(currentTime.getSeconds() + 1);
+                updateLiveTime();
+            }, 1000);
         } catch (e) {
             document.getElementById('live-time').innerText = 'خطا در دریافت زمان از سرور';
         }
     }
 
     function updateLiveTime() {
-        const { year, month, day, hour, minute, second } = currentTime;
-        document.getElementById('live-time').innerText = `${year}/${String(month).padStart(2,'0')}/${String(day).padStart(2,'0')} - ${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')}:${String(second).padStart(2,'0')}`;
-        document.getElementById('second').value = String(second).padStart(2, '0');
-        setTimeout(() => {
-            currentTime.second++;
-            if (currentTime.second >= 60) {
-                currentTime.second = 0;
-                currentTime.minute++;
-                if (currentTime.minute >= 60) {
-                    currentTime.minute = 0;
-                    currentTime.hour++;
-                    if (currentTime.hour >= 24) {
-                        currentTime.hour = 0;
-                        currentTime.day++;
-                        // Extend month/year logic as needed
-                    }
-                }
-            }
-            updateLiveTime();
-        }, 1000);
+        document.getElementById('live-time').innerText = currentTime.toLocaleString('fa-IR');
     }
 
-    function updateManualFields() {
-        const fields = ['year', 'month', 'day', 'hour', 'minute'];
-        fields.forEach(field => {
-            document.getElementById(field).value = selectedTime[field];
-        });
-        updateButtonStates();
+    function calculateStartTime() {
+        const days = parseInt(document.getElementById('days').value) || 0;
+        const hours = parseInt(document.getElementById('hours').value) || 0;
+        const minutes = parseInt(document.getElementById('minutes').value) || 0;
+
+        const delay = (days * 24 * 60 + hours * 60 + minutes) * 60 * 1000;
+        const target = new Date(currentTime.getTime() + delay);
+
+        document.getElementById('final-time').innerText = target.toLocaleString('fa-IR');
+
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(() => updateTimeLeft(target), 1000);
     }
 
-    function adjustTime(field, delta) {
-        const newVal = selectedTime[field] + delta;
-        const tempTime = { ...selectedTime, [field]: newVal };
-        if (!isBeforeCurrent(tempTime)) {
-            selectedTime[field] = newVal;
-            updateManualFields();
+    function updateTimeLeft(target) {
+        const now = new Date(currentTime.getTime());
+        const diff = target - now;
+
+        if (diff <= 0) {
+            document.getElementById('time-left').innerText = 'زمان رسید';
+            clearInterval(timerInterval);
+            return;
         }
-    }
 
-    function isBeforeCurrent(time) {
-        const fields = ['year', 'month', 'day', 'hour', 'minute'];
-        for (let i = 0; i < fields.length; i++) {
-            const key = fields[i];
-            if (time[key] > currentTime[key]) return false;
-            if (time[key] < currentTime[key]) return true;
-        }
-        return true;
-    }
+        const totalSec = Math.floor(diff / 1000);
+        const d = Math.floor(totalSec / 86400);
+        const h = Math.floor((totalSec % 86400) / 3600);
+        const m = Math.floor((totalSec % 3600) / 60);
+        const s = totalSec % 60;
 
-    function updateButtonStates() {
-        const fields = ['year', 'month', 'day', 'hour', 'minute'];
-        fields.forEach(field => {
-            const minusBtn = document.getElementById(`${field}-minus`);
-            const plusBtn = document.getElementById(`${field}-plus`);
-
-            const tempDec = { ...selectedTime, [field]: selectedTime[field] - 1 };
-            const tempInc = { ...selectedTime, [field]: selectedTime[field] + 1 };
-
-            minusBtn.disabled = isBeforeCurrent(tempDec);
-            plusBtn.disabled = false;
-        });
+        document.getElementById('time-left').innerText = `${d}روز ${h}ساعت ${m}دقیقه ${s}ثانیه`;
+        currentTime.setSeconds(currentTime.getSeconds() + 1);
     }
 
     fetchTime();
