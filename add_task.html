@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>افزودن فعالیت</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script src="https://cdn.jsdelivr.net/npm/jalaali-js@1.1.1/dist/jalaali.min.js"></script>
   <style>
     body {
@@ -17,6 +18,13 @@
       max-width: 500px;
       margin: 0 auto;
       padding: 20px;
+      display: none;
+    }
+    .loading {
+      text-align: center;
+      font-size: 16px;
+      color: #2b7bb9;
+      margin-top: 100px;
     }
     h1 {
       text-align: center;
@@ -96,7 +104,9 @@
   </style>
 </head>
 <body>
-<div class="container">
+<div class="loading" id="loadingMsg">⌛ در حال دریافت زمان دقیق از سرور...</div>
+
+<div class="container" id="formContainer">
   <h1>ScheduleSV</h1>
   <p>مدیریت و پیگیری فعالیت‌های تیمی با دقت جهانی</p>
 
@@ -119,7 +129,7 @@
   </div>
 
   <label>زمان شروع:</label>
-  <div class="time-grid" id="startGrid">
+  <div class="time-grid">
     <div class="time-unit"><input id="start_year" readonly></div>
     <div class="time-unit"><input id="start_month" readonly></div>
     <div class="time-unit"><input id="start_day" readonly></div>
@@ -129,7 +139,7 @@
   </div>
 
   <label>ددلاین:</label>
-  <div class="time-grid" id="deadlineGrid">
+  <div class="time-grid">
     <div class="time-unit"><input id="deadline_year" readonly></div>
     <div class="time-unit"><input id="deadline_month" readonly></div>
     <div class="time-unit"><input id="deadline_day" readonly></div>
@@ -216,11 +226,15 @@ fetch("https://worldtimeapi.org/api/timezone/Asia/Tehran")
   .then(res => res.json())
   .then(data => {
     serverNow = new Date(data.datetime);
+    document.getElementById("loadingMsg").style.display = "none";
+    document.getElementById("formContainer").style.display = "block";
     setDefaultDate();
     tickSeconds();
   })
   .catch(() => {
     serverNow = new Date();
+    document.getElementById("loadingMsg").style.display = "none";
+    document.getElementById("formContainer").style.display = "block";
     setDefaultDate();
     tickSeconds();
   });
