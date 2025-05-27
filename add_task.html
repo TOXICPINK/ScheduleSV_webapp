@@ -14,7 +14,7 @@
       direction: rtl;
     }
     .container {
-      max-width: 480px;
+      max-width: 500px;
       margin: 0 auto;
       padding: 20px;
     }
@@ -64,6 +64,7 @@
     }
     .time-grid {
       display: flex;
+      flex-wrap: wrap;
       gap: 10px;
       justify-content: space-between;
     }
@@ -71,20 +72,11 @@
       display: flex;
       align-items: center;
       gap: 5px;
+      flex: 1 1 30%;
     }
     .time-unit input {
       text-align: center;
       width: 60px;
-    }
-    .btn {
-      background: #2b7bb9;
-      color: white;
-      border: none;
-      width: 26px;
-      height: 26px;
-      border-radius: 4px;
-      font-size: 14px;
-      cursor: pointer;
     }
     #second, #second_dl {
       opacity: 0.5;
@@ -127,18 +119,22 @@
   </div>
 
   <label>زمان شروع:</label>
-  <div class="time-grid">
-    <div class="time-unit"><button class="btn" onclick="adjustTime('start', 'year', -1)">-</button><input id="start_year" readonly><button class="btn" onclick="adjustTime('start', 'year', 1)">+</button></div>
-    <div class="time-unit"><button class="btn" onclick="adjustTime('start', 'month', -1)">-</button><input id="start_month" readonly><button class="btn" onclick="adjustTime('start', 'month', 1)">+</button></div>
-    <div class="time-unit"><button class="btn" onclick="adjustTime('start', 'day', -1)">-</button><input id="start_day" readonly><button class="btn" onclick="adjustTime('start', 'day', 1)">+</button></div>
+  <div class="time-grid" id="startGrid">
+    <div class="time-unit"><input id="start_year" readonly></div>
+    <div class="time-unit"><input id="start_month" readonly></div>
+    <div class="time-unit"><input id="start_day" readonly></div>
+    <div class="time-unit"><input id="start_hour"></div>
+    <div class="time-unit"><input id="start_minute"></div>
     <div class="time-unit"><input id="second" readonly></div>
   </div>
 
   <label>ددلاین:</label>
-  <div class="time-grid">
-    <div class="time-unit"><button class="btn" onclick="adjustTime('deadline', 'year', -1)">-</button><input id="deadline_year" readonly><button class="btn" onclick="adjustTime('deadline', 'year', 1)">+</button></div>
-    <div class="time-unit"><button class="btn" onclick="adjustTime('deadline', 'month', -1)">-</button><input id="deadline_month" readonly><button class="btn" onclick="adjustTime('deadline', 'month', 1)">+</button></div>
-    <div class="time-unit"><button class="btn" onclick="adjustTime('deadline', 'day', -1)">-</button><input id="deadline_day" readonly><button class="btn" onclick="adjustTime('deadline', 'day', 1)">+</button></div>
+  <div class="time-grid" id="deadlineGrid">
+    <div class="time-unit"><input id="deadline_year" readonly></div>
+    <div class="time-unit"><input id="deadline_month" readonly></div>
+    <div class="time-unit"><input id="deadline_day" readonly></div>
+    <div class="time-unit"><input id="deadline_hour"></div>
+    <div class="time-unit"><input id="deadline_minute"></div>
     <div class="time-unit"><input id="second_dl" readonly></div>
   </div>
 
@@ -166,21 +162,20 @@ function setDefaultDate() {
   const y = (calendarMode === "jalali") ? j.jy : now.getFullYear();
   const m = (calendarMode === "jalali") ? j.jm : now.getMonth() + 1;
   const d = (calendarMode === "jalali") ? j.jd : now.getDate();
+  const h = now.getHours();
+  const i = now.getMinutes();
 
-  ["start", "deadline"].forEach(prefix => {
-    document.getElementById(`${prefix}_year`).value = y;
-    document.getElementById(`${prefix}_month`).value = String(m).padStart(2, '0');
-    document.getElementById(`${prefix}_day`).value = String(d).padStart(2, '0');
-  });
-}
+  document.getElementById("start_year").value = y;
+  document.getElementById("start_month").value = String(m).padStart(2, '0');
+  document.getElementById("start_day").value = String(d).padStart(2, '0');
+  document.getElementById("start_hour").value = String(h).padStart(2, '0');
+  document.getElementById("start_minute").value = String(i).padStart(2, '0');
 
-function adjustTime(type, field, diff) {
-  const el = document.getElementById(`${type}_${field}`);
-  let val = parseInt(el.value || "0") + diff;
-  if (field === "month") val = ((val - 1 + 12) % 12) + 1;
-  if (field === "day") val = Math.max(1, Math.min(31, val));
-  if (field === "year") val = Math.max(serverNow.getFullYear(), val);
-  el.value = val.toString().padStart(2, "0");
+  document.getElementById("deadline_year").value = y;
+  document.getElementById("deadline_month").value = String(m).padStart(2, '0');
+  document.getElementById("deadline_day").value = String(d + 1).padStart(2, '0');
+  document.getElementById("deadline_hour").value = String(h).padStart(2, '0');
+  document.getElementById("deadline_minute").value = String(i).padStart(2, '0');
 }
 
 function tickSeconds() {
@@ -200,12 +195,16 @@ function submitForm() {
     start: {
       y: document.getElementById("start_year").value,
       m: document.getElementById("start_month").value,
-      d: document.getElementById("start_day").value
+      d: document.getElementById("start_day").value,
+      h: document.getElementById("start_hour").value,
+      i: document.getElementById("start_minute").value
     },
     deadline: {
       y: document.getElementById("deadline_year").value,
       m: document.getElementById("deadline_month").value,
-      d: document.getElementById("deadline_day").value
+      d: document.getElementById("deadline_day").value,
+      h: document.getElementById("deadline_hour").value,
+      i: document.getElementById("deadline_minute").value
     },
     calendar: calendarMode
   };
