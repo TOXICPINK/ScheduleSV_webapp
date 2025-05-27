@@ -1,96 +1,132 @@
 <!DOCTYPE html>
 <html lang="fa">
 <head>
-    <meta charset="UTF-8">
-    <title>ScheduleSV | برنامه‌ریزی تیم</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            background-color: #f5f5f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            direction: rtl;
-        }
-        .container {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-        .live-time {
-            font-size: 22px;
-            font-weight: bold;
-            margin-bottom: 30px;
-            color: #444;
-            background: #eee;
-            padding: 10px 15px;
-            border-radius: 10px;
-        }
-        .time-row {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin: 10px 0;
-        }
-        .time-row input {
-            width: 50px;
-            text-align: center;
-            font-size: 18px;
-            padding: 6px;
-        }
-        .submit-btn {
-            margin-top: 30px;
-            padding: 12px 28px;
-            font-size: 16px;
-            background: #1976d2;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>ScheduleSV | برنامه‌ریزی تیم</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      direction: rtl;
+    }
+    .container {
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      width: 400px;
+      text-align: center;
+    }
+    h1 {
+      color: #007bff;
+      margin-bottom: 15px;
+    }
+    .live-time {
+      font-weight: bold;
+      font-size: 20px;
+      background: #eee;
+      padding: 10px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+    }
+    .manual-inputs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+    }
+    .manual-inputs input {
+      width: 50px;
+      text-align: center;
+      padding: 5px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h2 style="color:#1976d2">ScheduleSV</h2>
-        <div>
-            <p>⏰ زمان:</p>
-            <div id="liveTime" class="live-time">در حال بارگذاری...</div>
-        </div>
-        <div>
-            <p>📝 تعیین دستی زمان شروع:</p>
-            <div class="time-row">
-                <input type="number" id="manual-year" placeholder="1404" />
-                <input type="number" id="manual-month" placeholder="03" />
-                <input type="number" id="manual-day" placeholder="06" />
-                <span>-</span>
-                <input type="number" id="manual-hour" placeholder="21" />
-                <input type="number" id="manual-minute" placeholder="15" />
-                <input type="number" id="manual-second" placeholder="49" disabled />
-            </div>
-        </div>
-        <button class="submit-btn">ثبت فعالیت</button>
+  <div class="container">
+    <h1>ScheduleSV</h1>
+    <div>🕰 زمان:</div>
+    <div class="live-time" id="liveTime">در حال بارگذاری...</div>
+
+    <div>📄 تعیین دستی زمان شروع:</div>
+    <div class="manual-inputs">
+      <input type="number" id="second" min="0" max="59">
+      <input type="number" id="minute" min="0" max="59">
+      <input type="number" id="hour" min="0" max="23">
+      <span>-</span>
+      <input type="number" id="day" min="1" max="31">
+      <input type="number" id="month" min="1" max="12">
+      <input type="number" id="year" min="1300" max="1500">
     </div>
 
-    <script>
-        async function fetchTime() {
-            try {
-                const res = await fetch("https://schedule-time-server.onrender.com/api/time");
-                const data = await res.json();
-                const { year, month, day, hour, minute, second } = data.jalali;
+    <button>ثبت فعالیت</button>
+  </div>
 
-                const timeBox = document.getElementById("liveTime");
-                const pad = num => String(num).padStart(2, "0");
-                timeBox.innerText = `${pad(hour)}:${pad(minute)}:${pad(second)} - ${pad(year)}/${pad(month)}/${pad(day)}`;
-            } catch {
-                document.getElementById("liveTime").innerText = "❌ خطا در دریافت زمان از سرور";
-            }
+  <script>
+    let manualEdited = false;
+
+    const yearInput = document.getElementById("year");
+    const monthInput = document.getElementById("month");
+    const dayInput = document.getElementById("day");
+    const hourInput = document.getElementById("hour");
+    const minuteInput = document.getElementById("minute");
+    const secondInput = document.getElementById("second");
+
+    const inputs = [yearInput, monthInput, dayInput, hourInput, minuteInput];
+
+    inputs.forEach(input => {
+      input.addEventListener("input", () => {
+        manualEdited = true;
+      });
+    });
+
+    function pad(n) {
+      return n.toString().padStart(2, '0');
+    }
+
+    async function fetchTime() {
+      try {
+        const res = await fetch("https://schedule-time-server.onrender.com/api/time");
+        const data = await res.json();
+        const t = data.jalali;
+
+        // نمایش در بخش اصلی زنده
+        document.getElementById("liveTime").textContent = `${t.year}/${pad(t.month)}/${pad(t.day)} - ${pad(t.hour)}:${pad(t.minute)}:${pad(t.second)}`;
+
+        // در صورت عدم ویرایش دستی، مقداردهی اولیه یا آپدیت زنده
+        if (!manualEdited) {
+          yearInput.value = t.year;
+          monthInput.value = pad(t.month);
+          dayInput.value = pad(t.day);
+          hourInput.value = pad(t.hour);
+          minuteInput.value = pad(t.minute);
+          secondInput.value = pad(t.second);
         }
-        setInterval(fetchTime, 1000);
-        fetchTime();
-    </script>
+      } catch (err) {
+        document.getElementById("liveTime").textContent = "❌ خطا در دریافت زمان از سرور";
+      }
+    }
+
+    fetchTime();
+    setInterval(fetchTime, 1000);
+  </script>
 </body>
 </html>
