@@ -2,163 +2,155 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <title>افزودن فعالیت</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <title>افزودن فعالیت - فقط شمسی</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script src="https://cdn.jsdelivr.net/npm/jalaali-js@1.1.1/dist/jalaali.min.js"></script>
   <style>
-    body { font-family: sans-serif; background: #f5f5f5; margin: 0; padding: 0; direction: rtl; }
-    .container { max-width: 500px; margin: 0 auto; padding: 20px; }
-    h1 { text-align: center; font-size: 24px; color: #2b7bb9; }
-    p { text-align: center; color: #666; margin-bottom: 20px; }
-    label, .section-title { font-weight: bold; margin: 16px 0 8px; display: block; }
-    select, input, textarea {
-      width: 100%; padding: 10px; border-radius: 8px;
-      border: 1px solid #ccc; font-size: 14px; margin-bottom: 12px;
+    body {
+      font-family: sans-serif;
+      background: #f5f5f5;
+      direction: rtl;
+      margin: 0;
+      padding: 0;
     }
-    .calendar-mode-toggle {
-      display: flex; justify-content: center; gap: 10px; margin-bottom: 16px;
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 20px;
     }
-    .calendar-btn {
-      padding: 6px 12px; border-radius: 8px;
-      border: 1px solid #2b7bb9; background: white; color: #2b7bb9; cursor: pointer;
+    h1 {
+      text-align: center;
+      color: #2b7bb9;
     }
-    .calendar-btn.active { background: #2b7bb9; color: white; }
+    .section-title {
+      margin-top: 24px;
+      font-weight: bold;
+      font-size: 16px;
+    }
+    .live-time {
+      font-weight: bold;
+      background: #eaeaea;
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+      margin-top: 10px;
+      font-size: 18px;
+      direction: ltr;
+    }
     .time-grid {
-      display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: space-between;
+      margin-top: 10px;
     }
     .time-unit {
-      display: flex; align-items: center; gap: 5px; flex: 1 1 30%;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex: 1 1 30%;
     }
     .time-unit input {
-      text-align: center; width: 60px;
+      text-align: center;
+      width: 60px;
+      font-size: 16px;
+      padding: 5px;
     }
     .btn {
-      background: #2b7bb9; color: white;
-      border: none; width: 26px; height: 26px;
-      border-radius: 4px; font-size: 14px; cursor: pointer;
+      background: #2b7bb9;
+      color: white;
+      border: none;
+      width: 26px;
+      height: 26px;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
     }
     #submit {
-      width: 100%; background: #2b7bb9; color: white;
-      border: none; border-radius: 8px; padding: 12px; font-size: 16px; margin-top: 20px;
+      width: 100%;
+      background: #2b7bb9;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 16px;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
-<div class="container">
-  <h1>ScheduleSV</h1>
-  <p>مدیریت دقیق زمان با تقویم جهانی یا شمسی</p>
+  <div class="container">
+    <h1>ScheduleSV</h1>
 
-  <label>عنوان فعالیت:</label>
-  <select id="titleSelector" onchange="toggleTitleInput(this)">
-    <option value="custom">بنویسید</option>
-    <option value="تماس با مشتری">تماس با مشتری</option>
-    <option value="جلسه داخلی">جلسه داخلی</option>
-    <option value="ارسال گزارش">ارسال گزارش</option>
-  </select>
-  <input type="text" id="titleInput" placeholder="عنوان دلخواه">
+    <div class="section-title">⏱ زمان شروع (شمسی - زنده):</div>
+    <div id="live-time" class="live-time">در حال بارگذاری...</div>
 
-  <label>توضیحات:</label>
-  <textarea id="description" placeholder="یادداشت یا نکته اضافی..."></textarea>
+    <div class="section-title">📝 تعیین دستی زمان شروع:</div>
+    <div class="time-grid">
+      <div class="time-unit"><button class="btn" onclick="adjustTime('year', 1)">+</button><input id="year" readonly></div>
+      <div class="time-unit"><button class="btn" onclick="adjustTime('month', 1)">+</button><input id="month" readonly></div>
+      <div class="time-unit"><button class="btn" onclick="adjustTime('day', 1)">+</button><input id="day" readonly></div>
+      <div class="time-unit"><button class="btn" onclick="adjustTime('hour', 1)">+</button><input id="hour" readonly></div>
+      <div class="time-unit"><button class="btn" onclick="adjustTime('minute', 1)">+</button><input id="minute" readonly></div>
+      <div class="time-unit"><input id="second" readonly style="opacity: 0.5;"></div>
+    </div>
 
-  <div class="section-title">⏰ انتخاب تقویم</div>
-  <div class="calendar-mode-toggle">
-    <button class="calendar-btn active" onclick="setCalendarMode('gregorian')">میلادی</button>
-    <button class="calendar-btn" onclick="setCalendarMode('jalali')">شمسی</button>
+    <button id="submit" onclick="submitForm()">ثبت فعالیت</button>
   </div>
 
-  <label>زمان شروع:</label>
-  <div class="time-grid">
-    <div class="time-unit"><button class="btn" onclick="adjustTime('year', 1)">+</button><input id="year" readonly></div>
-    <div class="time-unit"><button class="btn" onclick="adjustTime('month', 1)">+</button><input id="month" readonly></div>
-    <div class="time-unit"><button class="btn" onclick="adjustTime('day', 1)">+</button><input id="day" readonly></div>
-    <div class="time-unit"><button class="btn" onclick="adjustTime('hour', 1)">+</button><input id="hour" readonly></div>
-    <div class="time-unit"><button class="btn" onclick="adjustTime('minute', 1)">+</button><input id="minute" readonly></div>
-  </div>
+  <script>
+    let baseTime = new Date();
 
-  <button id="submit" onclick="submitForm()">ثبت فعالیت</button>
-</div>
+    function updateLiveClock() {
+      const now = new Date();
+      const j = jalaali.toJalaali(now);
+      const timeStr = `${j.jy}/${String(j.jm).padStart(2, '0')}/${String(j.jd).padStart(2, '0')} `
+        + `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+      document.getElementById("live-time").textContent = timeStr;
+      document.getElementById("second").value = String(now.getSeconds()).padStart(2, '0');
+      setTimeout(updateLiveClock, 1000);
+    }
 
-<script>
-let calendarMode = 'gregorian';
-let baseTime = new Date();
+    function updateFields() {
+      const j = jalaali.toJalaali(baseTime);
+      document.getElementById("year").value = j.jy;
+      document.getElementById("month").value = String(j.jm).padStart(2, '0');
+      document.getElementById("day").value = String(j.jd).padStart(2, '0');
+      document.getElementById("hour").value = String(baseTime.getHours()).padStart(2, '0');
+      document.getElementById("minute").value = String(baseTime.getMinutes()).padStart(2, '0');
+    }
 
-function toggleTitleInput(select) {
-  document.getElementById("titleInput").style.display = (select.value === "custom") ? "block" : "none";
-}
+    function adjustTime(field, amount) {
+      const d = new Date(baseTime);
+      if (field === 'year') d.setFullYear(d.getFullYear() + amount);
+      if (field === 'month') d.setMonth(d.getMonth() + amount);
+      if (field === 'day') d.setDate(d.getDate() + amount);
+      if (field === 'hour') d.setHours(d.getHours() + amount);
+      if (field === 'minute') d.setMinutes(d.getMinutes() + amount);
+      if (d >= new Date()) {
+        baseTime = d;
+        updateFields();
+      }
+    }
 
-function setCalendarMode(mode) {
-  calendarMode = mode;
-  document.querySelectorAll('.calendar-btn').forEach(btn => btn.classList.remove('active'));
-  document.querySelector(`.calendar-btn[onclick*="${mode}"]`).classList.add('active');
-  updateFields();
-}
+    function submitForm() {
+      const data = {
+        time: {
+          y: document.getElementById("year").value,
+          m: document.getElementById("month").value,
+          d: document.getElementById("day").value,
+          h: document.getElementById("hour").value,
+          i: document.getElementById("minute").value
+        }
+      };
+      Telegram.WebApp.sendData(JSON.stringify(data));
+      Telegram.WebApp.close();
+    }
 
-function updateFields() {
-  const d = new Date(baseTime);
-  if (calendarMode === 'gregorian') {
-    document.getElementById("year").value = d.getFullYear();
-    document.getElementById("month").value = String(d.getMonth() + 1).padStart(2, '0');
-    document.getElementById("day").value = String(d.getDate()).padStart(2, '0');
-  } else {
-    const j = jalaali.toJalaali(d);
-    document.getElementById("year").value = j.jy;
-    document.getElementById("month").value = String(j.jm).padStart(2, '0');
-    document.getElementById("day").value = String(j.jd).padStart(2, '0');
-  }
-  document.getElementById("hour").value = String(d.getHours()).padStart(2, '0');
-  document.getElementById("minute").value = String(d.getMinutes()).padStart(2, '0');
-}
-
-function adjustTime(field, amount) {
-  const d = new Date(baseTime);
-  if (field === 'year') d.setFullYear(d.getFullYear() + amount);
-  if (field === 'month') d.setMonth(d.getMonth() + amount);
-  if (field === 'day') d.setDate(d.getDate() + amount);
-  if (field === 'hour') d.setHours(d.getHours() + amount);
-  if (field === 'minute') d.setMinutes(d.getMinutes() + amount);
-  if (d >= baseTime) {
-    baseTime = d;
     updateFields();
-  }
-}
-
-function submitForm() {
-  const data = {
-    title: document.getElementById("titleInput").style.display === "block"
-      ? document.getElementById("titleInput").value
-      : document.getElementById("titleSelector").value,
-    description: document.getElementById("description").value,
-    time: {
-      y: document.getElementById("year").value,
-      m: document.getElementById("month").value,
-      d: document.getElementById("day").value,
-      h: document.getElementById("hour").value,
-      i: document.getElementById("minute").value
-    },
-    calendar: calendarMode
-  };
-  Telegram.WebApp.sendData(JSON.stringify(data));
-  Telegram.WebApp.close();
-}
-
-// GET local time from your own Flask server
-fetch("http://localhost:5000/api/time")
-  .then(res => res.json())
-  .then(data => {
-    const t = data[calendarMode];
-    baseTime = new Date();
-    baseTime.setFullYear(t.year, t.month - 1, t.day);
-    baseTime.setHours(t.hour, t.minute, 0, 0);
-    updateFields();
-  })
-  .catch(() => {
-    alert("⛔️ دریافت زمان از سرور داخلی ناموفق بود. از زمان سیستم استفاده می‌شود.");
-    baseTime = new Date();
-    updateFields();
-  });
-
-Telegram.WebApp.expand();
-</script>
+    updateLiveClock();
+    Telegram.WebApp.expand();
+  </script>
 </body>
 </html>
