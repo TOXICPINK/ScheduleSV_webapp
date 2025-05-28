@@ -32,6 +32,11 @@
             border-radius: 10px;
             font-weight: bold;
         }
+        .calendar-label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
         .calendar-inputs {
             margin-bottom: 25px;
             font-size: 16px;
@@ -41,12 +46,13 @@
             padding: 5px;
             margin: 0 5px;
             font-size: 16px;
+            text-align: center;
         }
         .result-time {
             margin-top: 25px;
             font-size: 18px;
             line-height: 2.2;
-            color: #444;
+            color: #888;
         }
         .submit-btn {
             background-color: #007bff;
@@ -64,7 +70,7 @@
 <div class="container">
     <h2>ScheduleSV</h2>
     <div class="time-display" id="live-time">در حال بارگذاری...</div>
-    <label>📝 شروع فعالیت در:</label>
+    <label class="calendar-label">📝 شروع فعالیت در:</label>
     <div class="calendar-inputs">
         <select id="weekday">
             <option>شنبه</option>
@@ -90,6 +96,7 @@
 <script>
     let currentTime = null;
     let timerInterval;
+    let selectedTime = null;
 
     async function fetchTime() {
         try {
@@ -107,6 +114,7 @@
             setInterval(() => {
                 currentTime.setSeconds(currentTime.getSeconds() + 1);
                 updateLiveTime();
+                updateLiveResults();
             }, 1000);
         } catch (e) {
             document.getElementById('live-time').innerText = 'خطا در دریافت زمان از سرور';
@@ -125,29 +133,29 @@
         const min = parseInt(document.getElementById('minute').value);
 
         const target = new Date(y, m, d, h, min);
-        document.getElementById('final-time').innerText = target.toLocaleString('fa-IR');
-        updateTimeLeft(target);
-
-        if (timerInterval) clearInterval(timerInterval);
-        timerInterval = setInterval(() => updateTimeLeft(target), 1000);
-    }
-
-    function updateTimeLeft(target) {
-        const now = new Date(currentTime.getTime());
-        const diff = target - now;
-
-        if (diff <= 0) {
-            document.getElementById('time-left').innerText = 'زمان رسید';
-            clearInterval(timerInterval);
+        if (target < currentTime) {
+            alert('زمان انتخابی باید بعد از زمان فعلی باشد.');
             return;
         }
+        selectedTime = target;
+        updateLiveResults();
+    }
 
+    function updateLiveResults() {
+        if (!selectedTime) return;
+
+        document.getElementById('final-time').innerText = selectedTime.toLocaleString('fa-IR');
+
+        const diff = selectedTime - currentTime;
+        if (diff <= 0) {
+            document.getElementById('time-left').innerText = 'زمان رسید';
+            return;
+        }
         const totalSec = Math.floor(diff / 1000);
         const d = Math.floor(totalSec / 86400);
         const h = Math.floor((totalSec % 86400) / 3600);
         const m = Math.floor((totalSec % 3600) / 60);
         const s = totalSec % 60;
-
         document.getElementById('time-left').innerText = `${d}روز ${h}ساعت ${m}دقیقه ${s}ثانیه`;
     }
 
