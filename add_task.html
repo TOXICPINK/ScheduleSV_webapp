@@ -34,19 +34,30 @@
         }
         .calendar-label {
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
             font-size: 18px;
         }
         .calendar-inputs {
             margin-bottom: 25px;
             font-size: 16px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         .calendar-inputs input,
         .calendar-inputs select {
-            padding: 5px;
-            margin: 0 5px;
+            padding: 6px;
+            width: 70px;
             font-size: 16px;
             text-align: center;
+        }
+        .calendar-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
         }
         .result-time {
             margin-top: 25px;
@@ -72,20 +83,24 @@
     <div class="time-display" id="live-time">در حال بارگذاری...</div>
     <label class="calendar-label">📝 شروع فعالیت در:</label>
     <div class="calendar-inputs">
-        <select id="weekday">
-            <option>شنبه</option>
-            <option>یکشنبه</option>
-            <option>دوشنبه</option>
-            <option>سه‌شنبه</option>
-            <option>چهارشنبه</option>
-            <option>پنج‌شنبه</option>
-            <option>جمعه</option>
-        </select>
-        <input type="number" id="day" placeholder="روز" min="1" max="31">
-        <input type="number" id="month" placeholder="ماه" min="1" max="12">
-        <input type="number" id="year" placeholder="سال" min="1400" max="1500">
-        <input type="number" id="hour" placeholder="ساعت" min="0" max="23">
-        <input type="number" id="minute" placeholder="دقیقه" min="0" max="59">
+        <div class="calendar-row">
+            <input type="number" id="day" placeholder="روز" min="1" max="31">
+            <input type="number" id="month" placeholder="ماه" min="1" max="12">
+            <input type="number" id="year" placeholder="سال" min="1400" max="1500">
+        </div>
+        <div class="calendar-row">
+            <input type="number" id="minute" placeholder="دقیقه" min="0" max="59">
+            <input type="number" id="hour" placeholder="ساعت" min="0" max="23">
+            <select id="weekday">
+                <option>شنبه</option>
+                <option>یکشنبه</option>
+                <option>دوشنبه</option>
+                <option>سه‌شنبه</option>
+                <option>چهارشنبه</option>
+                <option>پنج‌شنبه</option>
+                <option>جمعه</option>
+            </select>
+        </div>
     </div>
     <div class="result-time">
         <div>⏱ زمان انتخاب‌شده: <span id="final-time">--</span></div>
@@ -123,6 +138,7 @@
 
     function updateLiveTime() {
         document.getElementById('live-time').innerText = currentTime.toLocaleString('fa-IR');
+        calculateManualStartTime();
     }
 
     function calculateManualStartTime() {
@@ -132,9 +148,13 @@
         const h = parseInt(document.getElementById('hour').value);
         const min = parseInt(document.getElementById('minute').value);
 
+        if (isNaN(y) || isNaN(m) || isNaN(d) || isNaN(h) || isNaN(min)) return;
+
         const target = new Date(y, m, d, h, min);
         if (target < currentTime) {
-            alert('زمان انتخابی باید بعد از زمان فعلی باشد.');
+            selectedTime = null;
+            document.getElementById('final-time').innerText = '--';
+            document.getElementById('time-left').innerText = '--';
             return;
         }
         selectedTime = target;
