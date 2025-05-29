@@ -1,48 +1,168 @@
-
 <!DOCTYPE html>
-<html lang="fa">
+<html lang="fa" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <title>فرم ثبت فعالیت</title>
-    <style>
-        body {
-            font-family: 'Tahoma', sans-serif;
-            direction: rtl;
-            background-color: #f4f4f4;
-            padding: 20px;
-            text-align: center;
-        }
-        h1 {
-            color: #333;
-        }
-        #live-seconds {
-            margin-top: 20px;
-            font-size: 18px;
-            font-weight: bold;
-            color: #444;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>ثبت فعالیت جدید</title>
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jalaali-js@1.1.0/dist/jalaali.min.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f9f9f9;
+      direction: rtl;
+      padding: 20px;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+    }
+    input[type="text"], textarea, input[type="number"], input[type="date"], input[type="time"] {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    .time-group {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+    }
+    .time-controls {
+      display: flex;
+      gap: 5px;
+    }
+    .time-controls input {
+      width: 60px;
+      text-align: center;
+    }
+    .time-controls button {
+      visibility: hidden;
+      cursor: pointer;
+    }
+    .time-controls:hover button {
+      visibility: visible;
+    }
+    .disabled {
+      background-color: #eee;
+    }
+    .submit-btn {
+      display: block;
+      margin-top: 30px;
+      width: 100%;
+      padding: 10px;
+      background-color: #0066cc;
+      color: #fff;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .submit-btn:hover {
+      background-color: #004c99;
+    }
+    #server-time {
+      text-align: center;
+      margin-top: 15px;
+      color: #555;
+      font-size: 14px;
+    }
+  </style>
 </head>
 <body>
-    <h1>فرم ثبت فعالیت</h1>
-    <div id="live-seconds">⏰ زمان فعلی: بارگذاری...</div>
+  <div class="container">
+    <h2>ثبت فعالیت فردی</h2>
 
-    <script>
-        async function updateCurrentTime() {
-            try {
-                const response = await fetch("https://schedule-time-server.onrender.com/api/time");
-                if (!response.ok) throw new Error("خطا در دریافت زمان از سرور");
-                const data = await response.json();
-                const time = data.time; // فرض: پاسخ JSON دارای فیلد "time" است
-                document.getElementById("live-seconds").innerText = `⏰ زمان فعلی: ${time}`;
-            } catch (error) {
-                console.error("خطا در دریافت زمان:", error);
-                document.getElementById("live-seconds").innerText = "⏰ زمان فعلی: خطا در دریافت زمان";
-            }
-        }
+    <label for="title">عنوان فعالیت:</label>
+    <input type="text" id="title" placeholder="مثلاً برنامه‌نویسی">
 
-        setInterval(updateCurrentTime, 1000);
-        updateCurrentTime();
-    </script>
+    <label for="description">توضیحات:</label>
+    <textarea id="description" rows="3" placeholder="توضیح مختصر بنویسید..."></textarea>
+
+    <label for="start-date">تاریخ شروع (جلالی):</label>
+    <input type="date" id="start-date">
+
+    <label for="start-time">زمان شروع:</label>
+    <div class="time-group">
+      <div class="time-controls">
+        <button onclick="adjust('start-hour', 1)">▲</button>
+        <input type="number" id="start-hour" min="0" max="23" value="0">
+        <button onclick="adjust('start-hour', -1)">▼</button>
+      </div>
+      :
+      <div class="time-controls">
+        <button onclick="adjust('start-minute', 1)">▲</button>
+        <input type="number" id="start-minute" min="0" max="59" value="0">
+        <button onclick="adjust('start-minute', -1)">▼</button>
+      </div>
+    </div>
+
+    <label for="end-date">تاریخ پایان (جلالی):</label>
+    <input type="date" id="end-date">
+
+    <label for="end-time">زمان پایان:</label>
+    <div class="time-group">
+      <div class="time-controls">
+        <button onclick="adjust('end-hour', 1)">▲</button>
+        <input type="number" id="end-hour" min="0" max="23" value="0">
+        <button onclick="adjust('end-hour', -1)">▼</button>
+      </div>
+      :
+      <div class="time-controls">
+        <button onclick="adjust('end-minute', 1)">▲</button>
+        <input type="number" id="end-minute" min="0" max="59" value="0">
+        <button onclick="adjust('end-minute', -1)">▼</button>
+      </div>
+    </div>
+
+    <label>ثانیه (نمایشی):</label>
+    <input type="text" id="seconds" class="disabled" disabled>
+
+    <button class="submit-btn">ثبت فعالیت</button>
+    <div id="server-time">دریافت زمان از سرور...</div>
+  </div>
+
+  <script>
+    function adjust(id, delta) {
+      const input = document.getElementById(id);
+      let val = parseInt(input.value) + delta;
+      const min = parseInt(input.min);
+      const max = parseInt(input.max);
+      if (val > max) val = min;
+      if (val < min) val = max;
+      input.value = val;
+    }
+
+    async function fetchServerTime() {
+      try {
+        const response = await fetch("https://schedule-time-server.onrender.com/api/time");
+        const data = await response.json();
+        const now = new Date(data.utc);
+        const seconds = now.getSeconds().toString().padStart(2, "0");
+        document.getElementById("seconds").value = seconds;
+        document.getElementById("server-time").textContent =
+          "⏰ ساعت هماهنگ با سرور: " + now.toLocaleTimeString("fa-IR");
+      } catch (e) {
+        document.getElementById("server-time").textContent = "❌ خطا در دریافت زمان سرور";
+      }
+    }
+
+    setInterval(fetchServerTime, 1000);
+    fetchServerTime();
+  </script>
 </body>
 </html>
