@@ -1,0 +1,88 @@
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پنل صاحب ربات - ScheduleSV</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            direction: rtl;
+        }
+        header {
+            background-color: #282c34;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+        h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        input, select, button, textarea {
+            font-family: inherit;
+            padding: 10px;
+            margin-top: 10px;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>👑 خوش آمدید صاحب گرامی!</h1>
+    <p>کد کاربری شما: <strong>#1</strong></p>
+</header>
+
+<div class="section">
+    <h2>📋 مدیریت اعضای تیم</h2>
+    <input type="text" placeholder="جستجوی نام کاربری یا کد کاربری">
+    <button>جستجو</button>
+    <!-- در آینده جدول اعضا و مدیریت نقش‌ها اینجا اضافه خواهد شد -->
+</div>
+
+<div class="section">
+    <h2>🧑‍💼 برنامه‌ریزی فعالیت شخصی</h2>
+    <form>
+        <label>عنوان فعالیت:</label>
+        <input type="text" placeholder="مثلاً طراحی وب‌اپ">
+
+        <label>توضیحات:</label>
+        <textarea rows="4" placeholder="توضیحات بیشتر درباره فعالیت..."></textarea>
+
+        <label>تاریخ (جلالی):</label>
+        <input type="text" placeholder="مثلاً 1404/03/10">
+
+        <label>ساعت:</label>
+        <input type="text" placeholder="مثلاً 14:30">
+
+        <button type="submit">ثبت فعالیت</button>
+    </form>
+</div>
+
+</body>
+</html>
