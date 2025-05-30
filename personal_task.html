@@ -1,0 +1,54 @@
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>ثبت فعالیت شخصی</title>
+    <style>
+        body {{
+            font-family: Tahoma, sans-serif;
+            direction: rtl;
+            text-align: right;
+            padding: 20px;
+        }}
+        label {{
+            display: block;
+            margin: 10px 0 5px;
+        }}
+        input[type="text"], textarea {{
+            width: 100%;
+            padding: 8px;
+            font-size: 1em;
+        }}
+        button {{
+            margin-top: 15px;
+            padding: 10px 20px;
+            font-size: 1em;
+        }}
+    </style>
+</head>
+<body>
+    <h2>📝 ثبت برنامه‌ریزی شخصی</h2>
+    <form method="post" action="/submit">
+        <label>عنوان فعالیت:</label>
+        <input type="text" name="title" placeholder="مثلاً: گزارش هفتگی" required>
+
+        <label>توضیحات:</label>
+        <textarea name="description" rows="4" placeholder="توضیحی کوتاه..." required></textarea>
+
+        <label>تاریخ شروع:</label>
+        <input type="text" name="start_date" placeholder="مثلاً 1404/03/12">
+
+        <label>زمان شروع:</label>
+        <input type="text" name="start_time" placeholder="مثلاً 14:30">
+
+        <label>تاریخ پایان:</label>
+        <input type="text" name="end_date" placeholder="مثلاً 1404/03/12">
+
+        <label>زمان پایان:</label>
+        <input type="text" name="end_time" placeholder="مثلاً 16:00">
+
+        <button type="submit">ثبت فعالیت</button>
+    </form>
+</body>
+</html>
